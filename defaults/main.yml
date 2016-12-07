@@ -1,0 +1,31 @@
+---
+# This settings are recommendations from Google which they use for their
+# Google Compute Cloud OS images. Have a look at:
+# https://cloud.google.com/compute/docs/tutorials/building-images
+sysctl_settings:
+  - { key: 'net.ipv4.tcp_syncookies',                    value: '1', comment: 'enables syn flood protection'}
+  - { key: 'net.ipv4.conf.all.accept_source_route',      value: '0', comment: 'ignores source-routed packets'}
+  - { key: 'net.ipv4.conf.default.accept_source_route',  value: '0', comment: 'ignores source-routed packets'}
+  - { key: 'net.ipv4.conf.all.accept_redirects',         value: '0', comment: 'ignores ICMP redirects'}
+  - { key: 'net.ipv4.conf.default.accept_redirects',     value: '0', comment: 'ignores ICMP redirects'}
+  - { key: 'net.ipv4.conf.all.secure_redirects',         value: '1', comment: 'ignores ICMP redirects from non-GW hosts'}
+  - { key: 'net.ipv4.conf.default.secure_redirects',     value: '1', comment: 'ignores ICMP redirects from non-GW hosts'}
+  - { key: 'net.ipv4.ip_forward',                        value: '0', comment: 'do not allow traffic between networks or act as a router'}
+  - { key: 'net.ipv4.conf.all.send_redirects',           value: '0', comment: 'do not allow traffic between networks or act as a router'}
+  - { key: 'net.ipv4.conf.default.send_redirects',       value: '0', comment: 'do not allow traffic between networks or act as a router'}
+  - { key: 'net.ipv4.conf.all.rp_filter',                value: '1', comment: 'reverse path filtering - IP spoofing protection'}
+  - { key: 'net.ipv4.conf.default.rp_filter',            value: '1', comment: 'reverse path filtering - IP spoofing protection'}
+  - { key: 'net.ipv4.icmp_echo_ignore_broadcasts',       value: '1', comment: 'ignores ICMP broadcasts to avoid participating in Smurf attacks'}
+  - { key: 'net.ipv4.icmp_ignore_bogus_error_responses', value: '1', comment: 'ignores bad ICMP errors'}
+  - { key: 'net.ipv4.conf.all.log_martians',             value: '1', comment: 'logs spoofed, source-routed, and redirect packets'}
+  - { key: 'net.ipv4.conf.default.log_martians',         value: '1', comment: 'log spoofed, source-routed, and redirect packets'}
+  - { key: 'net.ipv4.tcp_rfc1337',                       value: '1', comment: 'implements RFC 1337 fix'}
+  - { key: 'kernel.randomize_va_space',                  value: '2', comment: 'randomizes addresses of mmap base, heap, stack and VDSO page'}
+  - { key: 'fs.protected_hardlinks',                     value: '1', comment: 'provides protection from ToCToU races'}
+  - { key: 'fs.protected_symlinks',                      value: '1', comment: 'provides protection from ToCToU races'}
+  - { key: 'kernel.kptr_restrict',                       value: '1', comment: 'makes locating kernel addresses more difficult'}
+  - { key: 'kernel.perf_event_paranoid',                 value: '2', comment: 'set perf only available to root'}
+
+# By default we open only allow SSH inbound traffic.
+ufw_allow_ports:
+  - 22222

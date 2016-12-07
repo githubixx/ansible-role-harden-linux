@@ -1,0 +1,138 @@
+- name: Delete root pw file
+  file:
+    path: /root/.pw
+    state: absent
+
+- name: Change root password
+  user:
+    name: "root"
+    password: "{{common_root_password}}"
+
+- name: Add deploy user
+  user:
+    name: "{{common_deploy_user}}"
+    uid: 9999
+    shell: "/bin/bash"
+
+- name: Add authorized keys for deploy user
+  authorized_key:
+    user: "{{common_deploy_user}}"
+    key: "{{lookup('file', item)}}"
+  with_items:
+    - "{{common_deploy_user_public_keys}}"
+
+- name: Add deploy user to sudoers
+  lineinfile:
+    dest: /etc/sudoers
+    regexp: "{{common_deploy_user}} ALL"
+    line: "{{common_deploy_user}} ALL=(ALL) NOPASSWD:ALL"
+    state: present
+  tags:
+    - sudo
+
+- name: Update APT package cache
+  apt:
+    update_cache: yes
+    cache_valid_time: 3600
+
+- name: Install aptitude
+  apt:
+    pkg: aptitude
+    state: installed
+
+- name: Upgrade APT to the latest packages
+  apt:
+    upgrade: safe
+
+- name: Install required packages
+  apt:
+    state: installed
+    pkg: "{{item}}"
+  with_items:
+    - "{{common_required_packages}}"
+  tags:
+    - ufw
+
+- name: Adjust APT update intervals
+  copy:
+    src: etc/apt/apt.conf.d/10periodic
+    dest: /etc/apt/apt.conf.d/10periodic
+    owner: root
+    group: root
+    mode: 0644
+
+- name: Setup firewall and deny access by default
+  ufw: state=enabled policy=deny
+  tags:
+    - ufw
+
+- name: Allow listening on some ports
+  ufw: 
+    rule: allow
+    port: "{{item}}"
+    proto: tcp
+  with_items:
+    - "{{ufw_allow_ports}}"
+  when: ufw_allow_ports is defined
+  tags:
+    - ufw
+
+- name: Allow some networks to communicate
+  ufw: 
+    rule: allow
+    src: "{{item}}"
+  with_items:
+    - "{{ufw_allow_networks}}"
+  when: ufw_allow_networks is defined
+  tags:
+    - ufw
+
+- name: Sysctl settings
+  sysctl:
+    name: "{{item.key}}"
+    value: "{{item.value}}"
+    sysctl_set: yes
+  with_items:
+    - "{{sysctl_settings}}"
+  tags:
+    - sysctl
+
+- name: Change ssh port
+  lineinfile:
+    dest: /etc/ssh/sshd_config
+    regexp: "^Port "
+    line: "Port {{common_ssh_port}}"
+    state: present
+  notify: Restart ssh
+  tags:
+    - ssh
+
+- name: Disallow password authentication
+  lineinfile:
+    dest: /etc/ssh/sshd_config
+    regexp: "^PasswordAuthentication"
+    line: "PasswordAuthentication no"
+    state: present
+  notify: Restart ssh
+  tags:
+    - ssh
+
+- name: Disallow root SSH access
+  lineinfile:
+    dest: /etc/ssh/sshd_config
+    regexp: "^PermitRootLogin"
+    line: "PermitRootLogin no"
+    state: present
+  notify: Restart ssh
+  tags:
+    - ssh
+
+- name: Disallow PermitTunnel
+  lineinfile:
+    dest: /etc/ssh/sshd_config
+    regexp: "^PermitTunnel"
+    line: "PermitTunnel no"
+    state: present
+  notify: Restart ssh
+  tags:
+    - ssh
