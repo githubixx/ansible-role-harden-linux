@@ -18,7 +18,7 @@ I used this also for my Kubernetes cluster setup (see [Kubernetes the not so har
 Role Variables
 --------------
 
-The following variables don't have defaults. You need to specify them either in `group_vars` or `host_vars`. E.g. if this settings should be used only for one specific host create a file `host_vars/your-server.example.net.yml` and put the variables with the correct values there. If you want to apply this variables to a host group create a file `group_vars/your-group/root_settings.yml`. Replace `your-group` with the host group name which you created in the Ansible `hosts` file (do not confuse with /etc/hosts...).
+The following variables don't have defaults. You need to specify them either in `group_vars` or `host_vars`. E.g. if this settings should be used only for one specific host create a file `host_vars/your-server.example.net.yml` and put the variables with the correct values there. If you want to apply this variables to a host group create a file `group_vars/your-group/root_settings.yml` e.g. Replace `your-group` with the host group name which you created in the Ansible `hosts` file (do not confuse with /etc/hosts...). `common_deploy_user_public_keys` loads all the public SSH key files specifed in the list from your local hard disk. So at least you need to specify:
 
 ```
 common_root_password: your_encrypted_password_here
@@ -26,14 +26,24 @@ common_deploy_user: deploy
 common_deploy_user_pw: your_encrypted_password_here 
 common_deploy_user_public_keys:
   - /home/your_user/.ssh/id_rsa.pub
+```
+
+To create a encrypted password use `python -c 'import crypt; print crypt.crypt("This is my Password", "$1$SomeSalt$")'`. (You may need `python2` instead of `python` in case of Archlinux e.g.).
+
+The following variables below have defaults. So only specify if you need another value for the variable. `common_required_packages` specifies the packages this playbook requires to work:
+```
 common_required_packages:
   - ufw
   - sshguard
   - unattended-upgrades
-common_ssh_port: 22222
 ```
 
-Defaults for system variables (sysctl.conf / proc filesystem). This settings are recommendations from Google which they use for their Google Compute Cloud OS images [Build a Compute Engine Image from Scratch](https://cloud.google.com/compute/docs/tutorials/building-images). If you are happy with this settings you don't have to do anything:
+`common_ssh_port` specifies the port you want to use for SSH. If you change this setting also add the new port to `ufw_allow_ports` list. Otherwise you won't be able to login via SSH anymore:
+```
+common_ssh_port: 22
+```
+
+Defaults for some system variables (sysctl.conf / proc filesystem). This settings are recommendations from Google which they use for their Google Compute Cloud OS images (see [Build a Compute Engine Image from Scratch](https://cloud.google.com/compute/docs/tutorials/building-images)). If you are happy with this settings you don't have to do anything:
 
 ```
 sysctl_settings:
@@ -61,7 +71,7 @@ sysctl_settings:
   - { key: 'kernel.perf_event_paranoid',                 value: '2', comment: 'set perf only available to root'}
 ```
 
-Allow SSH by default (deny everything else). Again if SSH port is sufficient for you you don't need to change anything. Otherwise use `host_vars` or `group_vars` directory as mentioned above to override the settings:
+Allow SSH by default (deny everything else):
 ```
 ufw_allow_ports:
   - 22
@@ -73,6 +83,8 @@ You can also allow hosts to communicate on specific networks (without port restr
 ufw_allow_networks:
   - "10.3.0.0/24"
 ```
+
+For `ufw_allow_networks` there is no default setting. Nothing to do if you don't need this setting.
 
 Example Playbook
 ----------------
