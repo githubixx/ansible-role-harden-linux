@@ -1,4 +1,12 @@
 ---
+# Port for SSH to use.
+common_ssh_port: 22
+
+common_required_packages:
+  - ufw
+  - sshguard
+  - unattended-upgrades
+
 # This settings are recommendations from Google which they use for their
 # Google Compute Cloud OS images. Have a look at:
 # https://cloud.google.com/compute/docs/tutorials/building-images
@@ -28,4 +36,4 @@ sysctl_settings:
 
 # By default we open only allow SSH inbound traffic.
 ufw_allow_ports:
-  - 22222
+  - 22
