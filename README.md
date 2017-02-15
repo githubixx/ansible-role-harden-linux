@@ -1,6 +1,8 @@
 ansible-role-harden-linux
 =========================
 
+This Ansible playbook is used in [Kubernetes the not so hard way with Ansible (at scaleway) - part 2 - harden the instances](https://www.tauceti.blog/post/kubernetes-the-not-so-hard-way-with-ansible-at-scaleway-part-2/).
+
 Ansible role for hardening Linux (targeting Ubuntu 16.04 mainly) with the following features:
 
 - Change root password
@@ -107,5 +109,4 @@ GNU GENERAL PUBLIC LICENSE Version 3
 Author Information
 ------------------
 
-http://www.tauceti.net
-
+[www.tauceti.blog](https://www.tauceti.blog)
