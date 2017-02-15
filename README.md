@@ -15,8 +15,6 @@ Ansible role for hardening Linux (targeting Ubuntu 16.04 mainly) with the follow
 - Disable root login
 - Disable PermitTunnel
 
-I used this also for my Kubernetes cluster setup (see [Kubernetes the not so hard way with ansible (at scaleway) - part 2 - harden the instances](https://www.tauceti.blog/post/kubernetes-the-not-so-hard-way-with-ansible-at-scaleway-part-2/)).
-
 Role Variables
 --------------
 
