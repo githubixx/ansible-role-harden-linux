@@ -22,8 +22,10 @@ The following variables don't have defaults. You need to specify them either in 
 
 ```
 common_root_password: your_encrypted_password_here
+
 common_deploy_user: deploy
-common_deploy_user_pw: your_encrypted_password_here 
+common_deploy_user_password: your_encrypted_password_here
+common_deploy_user_home: /home/deploy
 common_deploy_user_public_keys:
   - /home/your_user/.ssh/id_rsa.pub
 ```

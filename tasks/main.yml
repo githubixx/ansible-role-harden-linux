@@ -11,8 +11,10 @@
 - name: Add deploy user
   user:
     name: "{{common_deploy_user}}"
+    password: "{{common_deploy_user_password}}"
     uid: 9999
     shell: "/bin/bash"
+    home: "{{common_deploy_user_home}}"
 
 - name: Add authorized keys for deploy user
   authorized_key:
