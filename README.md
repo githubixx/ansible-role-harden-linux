@@ -1,7 +1,7 @@
 ansible-role-harden-linux
 =========================
 
-This Ansible playbook is used in [Kubernetes the not so hard way with Ansible (at scaleway) - part 2 - harden the instances](https://www.tauceti.blog/post/kubernetes-the-not-so-hard-way-with-ansible-at-scaleway-part-2/).
+This Ansible playbook is used in [Kubernetes the not so hard way with Ansible (at Scaleway) - Part 2 - Harden the instances](https://www.tauceti.blog/post/kubernetes-the-not-so-hard-way-with-ansible-at-scaleway-part-2/).
 
 Ansible role for hardening Linux (targeting Ubuntu 16.04 mainly) with the following features:
 
@@ -18,7 +18,7 @@ Ansible role for hardening Linux (targeting Ubuntu 16.04 mainly) with the follow
 Role Variables
 --------------
 
-The following variables don't have defaults. You need to specify them either in `group_vars` or `host_vars`. E.g. if this settings should be used only for one specific host create a file `host_vars/your-server.example.net.yml` and put the variables with the correct values there. If you want to apply this variables to a host group create a file `group_vars/your-group/root_settings.yml` e.g. Replace `your-group` with the host group name which you created in the Ansible `hosts` file (do not confuse with /etc/hosts...). `common_deploy_user_public_keys` loads all the public SSH key files specifed in the list from your local hard disk. So at least you need to specify:
+The following variables don't have defaults. You need to specify them either in `group_vars` or `host_vars`. E.g. if this settings should be used only for one specific host create a file for that host called like the FQDN of that host (e.g `host_vars/your-server.example.tld`) and put the variables with the correct values there. If you want to apply this variables to a host group create a file `group_vars/your-group.yml` e.g. Replace `your-group` with the host group name which you created in the Ansible `hosts` file (do not confuse with /etc/hosts...). `common_deploy_user_public_keys` loads all the public SSH key files specifed in the list from your local hard disk. So at least you need to specify:
 
 ```
 common_root_password: your_encrypted_password_here
@@ -99,7 +99,7 @@ If you installed the role via `ansible-galaxy install githubixx.harden-linux` th
     - githubixx.harden-linux
 ```
 
-If you cloned the role via `git` e.g. the role name will differ e.g `ansible-role-harden-linux`. You can rename it to `harden-linux` e.g. and include that one. It's just a matter of the name of the role directory.
+If you cloned the role via `git` e.g. the role name will differ e.g `ansible-role-harden-linux`. You can rename it to `harden-linux` e.g. and include that one.
 
 License
 -------
