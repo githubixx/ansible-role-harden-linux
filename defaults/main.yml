@@ -2,37 +2,58 @@
 # Port for SSH to use.
 common_ssh_port: 22
 
+# Some default settings for deploy user
+common_deploy_user_uid: 9999
+common_deploy_user_shell: "/bin/bash"
+
+# Packages required by this role
 common_required_packages:
   - ufw
   - sshguard
   - unattended-upgrades
 
 # This settings are recommendations from Google which they use for their
-# Google Compute Cloud OS images. Have a look at:
-# https://cloud.google.com/compute/docs/tutorials/building-images
+# Google Compute Cloud OS images for IPv4 - add more settings on your
+# own by adding a group or host variable called "sysctl_settings_user".
+# "sysctl_settings" and "sysctl_settings_user" will get merged by a
+# task. You can also override a setting defined in "sysctl_settings"
+# by specifing a key with the same name and a different value in
+# "sysctl_settings_user".
+#
+# For more information about this settings have a look at:
+# https://cloud.google.com/compute/docs/images/building-custom-os
+# https://cloud.google.com/compute/docs/images/configuring-imported-images
+#
+# The following settings are not available in Scaleway's Linux image but maybe
+# other use it (keep it for reference):
+# "kernel.yama.ptrace_scope": 1                   # Set ptrace protections
 sysctl_settings:
-  - { key: 'net.ipv4.tcp_syncookies',                    value: '1', comment: 'enables syn flood protection'}
-  - { key: 'net.ipv4.conf.all.accept_source_route',      value: '0', comment: 'ignores source-routed packets'}
-  - { key: 'net.ipv4.conf.default.accept_source_route',  value: '0', comment: 'ignores source-routed packets'}
-  - { key: 'net.ipv4.conf.all.accept_redirects',         value: '0', comment: 'ignores ICMP redirects'}
-  - { key: 'net.ipv4.conf.default.accept_redirects',     value: '0', comment: 'ignores ICMP redirects'}
-  - { key: 'net.ipv4.conf.all.secure_redirects',         value: '1', comment: 'ignores ICMP redirects from non-GW hosts'}
-  - { key: 'net.ipv4.conf.default.secure_redirects',     value: '1', comment: 'ignores ICMP redirects from non-GW hosts'}
-  - { key: 'net.ipv4.ip_forward',                        value: '0', comment: 'do not allow traffic between networks or act as a router'}
-  - { key: 'net.ipv4.conf.all.send_redirects',           value: '0', comment: 'do not allow traffic between networks or act as a router'}
-  - { key: 'net.ipv4.conf.default.send_redirects',       value: '0', comment: 'do not allow traffic between networks or act as a router'}
-  - { key: 'net.ipv4.conf.all.rp_filter',                value: '1', comment: 'reverse path filtering - IP spoofing protection'}
-  - { key: 'net.ipv4.conf.default.rp_filter',            value: '1', comment: 'reverse path filtering - IP spoofing protection'}
-  - { key: 'net.ipv4.icmp_echo_ignore_broadcasts',       value: '1', comment: 'ignores ICMP broadcasts to avoid participating in Smurf attacks'}
-  - { key: 'net.ipv4.icmp_ignore_bogus_error_responses', value: '1', comment: 'ignores bad ICMP errors'}
-  - { key: 'net.ipv4.conf.all.log_martians',             value: '1', comment: 'logs spoofed, source-routed, and redirect packets'}
-  - { key: 'net.ipv4.conf.default.log_martians',         value: '1', comment: 'log spoofed, source-routed, and redirect packets'}
-  - { key: 'net.ipv4.tcp_rfc1337',                       value: '1', comment: 'implements RFC 1337 fix'}
-  - { key: 'kernel.randomize_va_space',                  value: '2', comment: 'randomizes addresses of mmap base, heap, stack and VDSO page'}
-  - { key: 'fs.protected_hardlinks',                     value: '1', comment: 'provides protection from ToCToU races'}
-  - { key: 'fs.protected_symlinks',                      value: '1', comment: 'provides protection from ToCToU races'}
-  - { key: 'kernel.kptr_restrict',                       value: '1', comment: 'makes locating kernel addresses more difficult'}
-  - { key: 'kernel.perf_event_paranoid',                 value: '2', comment: 'set perf only available to root'}
+  "net.ipv4.tcp_syncookies": 1                    # Enable syn flood protection
+  "net.ipv4.conf.all.accept_source_route": 0      # Ignore source-routed packets
+  "net.ipv6.conf.all.accept_source_route": 0      # IPv6 - Ignore ICMP redirects
+  "net.ipv4.conf.default.accept_source_route": 0  # Ignore source-routed packets
+  "net.ipv4.conf.all.accept_redirects": 0         # Ignore ICMP redirects
+  "net.ipv6.conf.all.accept_redirects": 0         # IPv6 - Ignore ICMP redirects
+  "net.ipv4.conf.default.accept_redirects": 0     # Ignore ICMP redirects
+  "net.ipv4.conf.all.secure_redirects": 1         # Ignore ICMP redirects from non-GW hosts
+  "net.ipv4.conf.default.secure_redirects": 1     # Ignore ICMP redirects from non-GW hosts
+  "net.ipv4.ip_forward": 0                        # Do not allow traffic between networks or act as a router
+  "net.ipv6.conf.all.forwarding": 0               # IPv6 - Do not allow traffic between networks or act as a router
+  "net.ipv4.conf.all.send_redirects": 0           # Don't allow traffic between networks or act as a router
+  "net.ipv4.conf.default.send_redirects": 0       # Don't allow traffic between networks or act as a router
+  "net.ipv4.conf.all.rp_filter": 1                # Reverse path filtering - IP spoofing protection
+  "net.ipv4.conf.default.rp_filter": 1            # Reverse path filtering - IP spoofing protection
+  "net.ipv4.icmp_echo_ignore_broadcasts": 1       # Ignore ICMP broadcasts to avoid participating in Smurf attacks
+  "net.ipv4.icmp_ignore_bogus_error_responses": 1 # Ignore bad ICMP errors
+  "net.ipv4.conf.all.log_martians": 1             # Log spoofed, source-routed, and redirect packets
+  "net.ipv4.conf.default.log_martians": 1         # Log spoofed, source-routed, and redirect packets
+  "net.ipv4.tcp_rfc1337": 1                       # Implement RFC 1337 fix
+  "kernel.randomize_va_space": 2                  # Randomize addresses of mmap base, heap, stack and VDSO page
+  "fs.protected_hardlinks": 1                     # Provide protection from ToCToU races
+  "fs.protected_symlinks": 1                      # Provide protection from ToCToU races
+  "kernel.kptr_restrict": 1                       # Make locating kernel addresses more difficult
+  "kernel.perf_event_paranoid": 2                 # Set perf only available to root
+  "kernel.modules_disabled": 1                    # Disable CAP_SYS_MODULE which allows for loading and unloading of kernel modules. This feature is deprecated in the linux kernel.
 
 # By default we open only allow SSH inbound traffic.
 ufw_allow_ports:

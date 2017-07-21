@@ -1,3 +1,5 @@
+# TODO: Add sshguard whitelist
+
 - name: Delete root pw file
   file:
     path: /root/.pw
@@ -12,8 +14,8 @@
   user:
     name: "{{common_deploy_user}}"
     password: "{{common_deploy_user_password}}"
-    uid: 9999
-    shell: "/bin/bash"
+    uid: "{{common_deploy_user_uid}}"
+    shell: "{{common_deploy_user_shell}}"
     home: "{{common_deploy_user_home}}"
 
 - name: Add authorized keys for deploy user
@@ -89,16 +91,6 @@
   tags:
     - ufw
 
-- name: Sysctl settings
-  sysctl:
-    name: "{{item.key}}"
-    value: "{{item.value}}"
-    sysctl_set: yes
-  with_items:
-    - "{{sysctl_settings}}"
-  tags:
-    - sysctl
-
 - name: Change ssh port
   lineinfile:
     dest: /etc/ssh/sshd_config
@@ -138,3 +130,17 @@
   notify: Restart ssh
   tags:
     - ssh
+
+- name: Combine sysctl_settings and user_sysctl_settings (if defined)
+  set_fact:
+    sysctl_settings: "{{sysctl_settings | combine(sysctl_settings_user|default({})) }}"
+
+- name: Sysctl settings
+  sysctl:
+    name: "{{item}}"
+    value: "{{sysctl_settings[item]}}"
+    sysctl_set: yes
+  with_items:
+    - "{{ sysctl_settings | list }}"
+  tags:
+    - sysctl
