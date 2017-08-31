@@ -1,20 +1,17 @@
 ---
-# Port for SSH to use.
-common_ssh_port: 22
-
 # Some default settings for deploy user
-common_deploy_user_uid: 9999
-common_deploy_user_shell: "/bin/bash"
+harden_linux_deploy_user_uid: 9999
+harden_linux_deploy_user_shell: "/bin/bash"
 
 # Packages required by this role
-common_required_packages:
+harden_linux_required_packages:
   - ufw
   - sshguard
   - unattended-upgrades
 
-# This settings are recommendations from Google which they use for their
-# Google Compute Cloud OS images for IPv4 - add more settings on your
-# own by adding a group or host variable called "sysctl_settings_user".
+# Most of this settings are recommendations from Google which they use for
+# their Google Compute Cloud OS images and from UFW firewall. Add more settings
+# on your own by adding a group or host variable called "sysctl_settings_user".
 # "sysctl_settings" and "sysctl_settings_user" will get merged by a
 # task. You can also override a setting defined in "sysctl_settings"
 # by specifing a key with the same name and a different value in
@@ -23,18 +20,34 @@ common_required_packages:
 # For more information about this settings have a look at:
 # https://cloud.google.com/compute/docs/images/building-custom-os
 # https://cloud.google.com/compute/docs/images/configuring-imported-images
+# With ufw package installed: /etc/ufw/sysctl.conf
 #
 # The following settings are not available in Scaleway's Linux image but maybe
 # other use it (keep it for reference):
 # "kernel.yama.ptrace_scope": 1                   # Set ptrace protections
-sysctl_settings:
+#
+# This would be cool but doesn't work with UFW very well so leave it out:
+# "kernel.modules_disabled": 1                    # Disable CAP_SYS_MODULE which allows for loading and unloading of kernel modules.
+                                                  # If you set kernel.modules_disabled=1 you're not able to load new netfilter/iptable
+                                                  # modules anymore (at least on Ubuntu 16.04)! So "ufw" would fail to start if
+                                                  # it is loaded afterwards.
+# Add this to "sysctl_settings_user" to turn off ipv6 autoconfiguration:
+# "net.ipv6.conf.default.autoconf": 0
+# "net.ipv6.conf.all.autoconf": 0
+
+# Add this to "sysctl_settings_user" to enable ipv6 privacy addressing
+# "net.ipv6.conf.default.use_tempaddr": 2
+# "net.ipv6.conf.all.use_tempaddr": 2
+harden_linux_sysctl_settings:
   "net.ipv4.tcp_syncookies": 1                    # Enable syn flood protection
   "net.ipv4.conf.all.accept_source_route": 0      # Ignore source-routed packets
   "net.ipv6.conf.all.accept_source_route": 0      # IPv6 - Ignore ICMP redirects
   "net.ipv4.conf.default.accept_source_route": 0  # Ignore source-routed packets
+  "net.ipv6.conf.default.accept_source_route": 0  # IPv6 - Ignore source-routed packets
   "net.ipv4.conf.all.accept_redirects": 0         # Ignore ICMP redirects
   "net.ipv6.conf.all.accept_redirects": 0         # IPv6 - Ignore ICMP redirects
   "net.ipv4.conf.default.accept_redirects": 0     # Ignore ICMP redirects
+  "net.ipv6.conf.default.accept_redirects": 0     # IPv6 - Ignore ICMP redirects
   "net.ipv4.conf.all.secure_redirects": 1         # Ignore ICMP redirects from non-GW hosts
   "net.ipv4.conf.default.secure_redirects": 1     # Ignore ICMP redirects from non-GW hosts
   "net.ipv4.ip_forward": 0                        # Do not allow traffic between networks or act as a router
@@ -45,6 +58,7 @@ sysctl_settings:
   "net.ipv4.conf.default.rp_filter": 1            # Reverse path filtering - IP spoofing protection
   "net.ipv4.icmp_echo_ignore_broadcasts": 1       # Ignore ICMP broadcasts to avoid participating in Smurf attacks
   "net.ipv4.icmp_ignore_bogus_error_responses": 1 # Ignore bad ICMP errors
+  "net.ipv4.icmp_echo_ignore_all": 0              # Ignore bad ICMP errors
   "net.ipv4.conf.all.log_martians": 1             # Log spoofed, source-routed, and redirect packets
   "net.ipv4.conf.default.log_martians": 1         # Log spoofed, source-routed, and redirect packets
   "net.ipv4.tcp_rfc1337": 1                       # Implement RFC 1337 fix
@@ -53,8 +67,43 @@ sysctl_settings:
   "fs.protected_symlinks": 1                      # Provide protection from ToCToU races
   "kernel.kptr_restrict": 1                       # Make locating kernel addresses more difficult
   "kernel.perf_event_paranoid": 2                 # Set perf only available to root
-  "kernel.modules_disabled": 1                    # Disable CAP_SYS_MODULE which allows for loading and unloading of kernel modules. This feature is deprecated in the linux kernel.
 
-# By default we open only allow SSH inbound traffic.
-ufw_allow_ports:
-  - 22
+# The "key" here is a regex of a setting you want to replace and the value is
+# the setting name + the setting value. E.g. we want to replace the line
+# "Port 22" with "Port 22222". The regex (the key) would be "^Port 22 " which
+# means "search for a line in /etc/ssh/sshd_config that begins with 'Port 22 '
+# and replace the whole line with 'Port 22222'". This enables you to replace
+# every setting in sshd_config.
+harden_linux_sshd_settings:
+  "^PasswordAuthentication": "PasswordAuthentication no"  # Disable password authentication
+  "^PermitRootLogin": "PermitRootLogin no"                # Disable SSH root login
+  "^PermitTunnel": "PermitTunnel no"                      # Disable tun(4) device forwarding
+  "^Port ": "Port 22"                                     # Set SSHd port
+
+# By default we only allow SSH inbound traffic.
+harden_linux_ufw_rules:
+  - rule: "allow"
+    to_port: "22"
+    protocol: "tcp"
+
+# Defaults for UFW (/etc/default/ufw). Same rules as for
+# harden_linux_sshd_settings applies.
+harden_linux_ufw_defaults:
+  "^IPV6": 'IPV6=yes'
+  "^DEFAULT_INPUT_POLICY": 'DEFAULT_INPUT_POLICY="DROP"'
+  "^DEFAULT_OUTPUT_POLICY": 'DEFAULT_OUTPUT_POLICY="ACCEPT"'
+  "^DEFAULT_FORWARD_POLICY": 'DEFAULT_FORWARD_POLICY="DROP"'
+  "^DEFAULT_APPLICATION_POLICY": 'DEFAULT_APPLICATION_POLICY="SKIP"'
+  "^MANAGE_BUILTINS": 'MANAGE_BUILTINS=no'
+  "^IPT_SYSCTL": 'IPT_SYSCTL=/etc/ufw/sysctl.conf'
+  "^IPT_MODULES": 'IPT_MODULES="nf_conntrack_ftp nf_nat_ftp nf_conntrack_netbios_ns"'
+
+# Disable/enable UFW logging
+harden_linux_ufw_logging: 'off'
+
+# SSHGuard whitelist. SSHGuard blocks IPs for some time if
+# to many login attempts fail. Specify IP (ranges) that
+# should not be blocked
+harden_linux_sshguard_whitelist:
+  - "127.0.0.0/8"
+  - "::1/128"
