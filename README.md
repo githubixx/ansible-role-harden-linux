@@ -17,7 +17,7 @@ This Ansible role was mainly created for [Kubernetes the not so hard way with An
 Versions
 --------
 
-I tag every release using [semantic versioning](http://semver.org).
+I tag every release and try to stay with [semantic versioning](http://semver.org). If you want to use the role I recommend to checkout the latest tag. The master branch is basically development while the tags mark stable releases. But in general I try to keep master in good shape too.
 
 1. v1.0.0 - initial release
 2. v2.0.0 - major refactoring
