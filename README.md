@@ -24,7 +24,7 @@ Changelog
 
 **v3.0.0**
 
-- Ansible v2.5 needed for Ubuntu 18.04 Bionic Beaver as Python 3 is default there. It *should* work with Ansible >= 2.2 too but who knows ;-)
+- Ansible v2.5 needed for Ubuntu 18.04 Bionic Beaver as Python 3 is default there. It *should* work with Ansible >= 2.2 too but who knows ;-) As Ubuntu 18.04 comes with Python 3 support only by default you may adjust your Ansible's `hosts` file. E.g you can add the `ansible_python_interpreter` env. like so: `host.domain.tld ansible_python_interpreter=/usr/bin/python3` (also see http://docs.ansible.com/ansible/latest/reference_appendices/python_3_support.html for more examples)
 
 **v2.1.0**
 
