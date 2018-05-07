@@ -43,7 +43,7 @@
 - name: Install aptitude
   apt:
     pkg: aptitude
-    state: installed
+    state: present
   tags:
     - apt
 
