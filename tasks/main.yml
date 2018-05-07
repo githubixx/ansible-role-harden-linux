@@ -3,6 +3,33 @@
     path: /root/.pw
     state: absent
 
+- name: Update APT package cache
+  apt:
+    update_cache: true
+    cache_valid_time: 3600
+  tags:
+    - apt
+
+- name: Install aptitude
+  apt:
+    pkg: aptitude
+    state: present
+  tags:
+    - apt
+
+- name: Upgrade APT to the latest packages
+  apt:
+    upgrade: safe
+
+- name: Install required packages
+  apt:
+    state: present
+    pkg: "{{item}}"
+  with_items:
+    - "{{harden_linux_required_packages}}"
+  tags:
+    - ufw
+
 - name: Add deploy user
   user:
     name: "{{harden_linux_deploy_user}}"
@@ -32,33 +59,6 @@
   tags:
     - user
     - sudo
-
-- name: Update APT package cache
-  apt:
-    update_cache: true
-    cache_valid_time: 3600
-  tags:
-    - apt
-
-- name: Install aptitude
-  apt:
-    pkg: aptitude
-    state: present
-  tags:
-    - apt
-
-- name: Upgrade APT to the latest packages
-  apt:
-    upgrade: safe
-
-- name: Install required packages
-  apt:
-    state: present
-    pkg: "{{item}}"
-  with_items:
-    - "{{harden_linux_required_packages}}"
-  tags:
-    - ufw
 
 - name: Adjust APT update intervals
   copy:
