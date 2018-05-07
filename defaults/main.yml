@@ -8,6 +8,7 @@ harden_linux_required_packages:
   - ufw
   - sshguard
   - unattended-upgrades
+  - sudo
 
 # Most of this settings are recommendations from Google which they use for
 # their Google Compute Cloud OS images and from UFW firewall. Add more settings
