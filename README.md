@@ -22,6 +22,10 @@ I tag every release and try to stay with [semantic versioning](http://semver.org
 Changelog
 ---------
 
+**v3.0.0**
+
+- Ansible v2.5 needed for Ubuntu 18.04 Bionic Beaver as Python 3 is default there. It *should* work with Ansible >= 2.2 too but who knows ;-)
+
 **v2.1.0**
 
 - support for Ubuntu 18.04 Bionic Beaver
