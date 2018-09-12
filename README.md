@@ -1,7 +1,7 @@
 ansible-role-harden-linux
 =========================
 
-This Ansible role was mainly created for [Kubernetes the not so hard way with Ansible (at Scaleway) - Part 2 - Harden the instances](https://www.tauceti.blog/post/kubernetes-the-not-so-hard-way-with-ansible-at-scaleway-part-2/). But it can be used also standalone of course to harden Linux (targeting Ubuntu 16.04/18.04 mainly at the moment). It has the following features:
+This Ansible role was mainly created for [Kubernetes the not so hard way with Ansible - Harden the instances](https://www.tauceti.blog/post/kubernetes-the-not-so-hard-way-with-ansible-harden-the-instances//). But it can be used also standalone of course to harden Linux (targeting Ubuntu 16.04/18.04 mainly at the moment). It has the following features:
 
 - Change root password
 - Add a regular/deploy user used for administration (e.g. for Ansible or login via SSH)
@@ -21,6 +21,10 @@ I tag every release and try to stay with [semantic versioning](http://semver.org
 
 Changelog
 ---------
+
+**v3.0.1**
+
+- update README
 
 **v3.0.0**
 
