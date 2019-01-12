@@ -30,11 +30,9 @@
 - name: Install required packages
   apt:
     state: present
-    pkg: "{{ item }}"
+    pkg: "{{ harden_linux_required_packages }}"
   retries: 2
   delay: 5
-  with_items:
-    - "{{ harden_linux_required_packages }}"
   tags:
     - ufw
 
