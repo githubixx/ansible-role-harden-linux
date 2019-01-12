@@ -3,6 +3,7 @@ Changelog
 
 **v3.1.0**
 
+- fix deprecation warning in "install required packages" task
 - moved changelog entries to separate file
 - make Ansible linter happy
 
