@@ -42,6 +42,7 @@
     pkg: "{{ harden_linux_ntp }}"
   retries: 2
   delay: 5
+  when: harden_linux_ntp is defined
   tags:
     - ntpd
 
