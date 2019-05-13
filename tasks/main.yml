@@ -36,6 +36,36 @@
   tags:
     - ufw
 
+- name: Install openntpd/ntp package if requested
+  apt:
+    state: present
+    pkg: "{{ harden_linux_ntp }}"
+  retries: 2
+  delay: 5
+  when: harden_linux_ntp is defined
+  tags:
+    - ntpd
+
+- name: Set NTP config directory (depends on selected NTP package)
+  set_fact:
+    harden_linux_ntp_config_directory: '{% if harden_linux_ntp == "openntpd" %}openntpd/{% else %}{% endif %}'
+  when: harden_linux_ntp is defined
+  tags:
+    - ntpd
+
+- name: Add ntpd.conf if requested
+  lineinfile:
+    dest: "/etc/{{ harden_linux_ntp_config_directory }}ntpd.conf"
+    regexp: "{{ item }}"
+    line: "{{ harden_linux_ntp_settings[item] }}"
+    state: "present"
+  notify: "restart ntpd"
+  when: harden_linux_ntp is defined
+  with_items:
+    - "{{ harden_linux_ntp_settings | list }}"
+  tags:
+    - ntpd
+
 - name: Add deploy user
   user:
     name: "{{ harden_linux_deploy_user }}"

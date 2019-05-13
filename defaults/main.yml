@@ -10,6 +10,29 @@ harden_linux_required_packages:
   - unattended-upgrades
   - sudo
 
+# NTP packages to install. By default "openntpd" is used. You can als use "ntp"
+# package. But "openntpd" has the advantage that it doesn't listen on any ports
+# by default. If you just want to keep the hosts clock in sync this is absolutely
+# sufficient.
+# Having the same time on all your hosts is critical for some services. E.g. for
+# certificate validation, for etcd, databases, ... If you remove this variable
+# no NTP package will be installed and you're on your own.
+harden_linux_ntp: "openntpd"
+
+# Settings for "openntpd" or "ntpd". For further options see ntpd.conf(5).
+# The "key" here is a regex of a setting you want to replace and the value is
+# the setting name + the setting value. E.g. we want to replace the line
+# "servers 0.debian.pool.ntp.org" with "servers 1.debian.pool.ntp.org".
+# The regex (the key) would be "^servers 0" which
+# means "search for a line in "ntpd.conf" that begins with 'server 0'
+# and replace the whole line with 'servers 1.debian.pool.ntp.org'".
+# This enables you to replace every setting in "ntpd.conf".
+harden_linux_ntp_settings:
+  "^servers 0": "servers 0.debian.pool.ntp.org"
+  "^servers 1": "servers 1.debian.pool.ntp.org"
+  "^servers 2": "servers 2.debian.pool.ntp.org"
+  "^servers 3": "servers 3.debian.pool.ntp.org"
+
 # Most of this settings are recommendations from Google which they use for
 # their Google Compute Cloud OS images and from UFW firewall. Add more settings
 # on your own by adding a group or host variable called "sysctl_settings_user".

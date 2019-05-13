@@ -13,6 +13,7 @@ This Ansible role was mainly created for [Kubernetes the not so hard way with An
 - Disable root login
 - Disable PermitTunnel
 - Install Sshguard and adjust whitelist
+- Optional: Install openntpd/ntp
 
 Versions
 --------
@@ -155,11 +156,28 @@ harden_linux_ufw_logging: 'on'
 ```
 Possible values are `on`,`off`,`low`,`medium`,`high` and `full`.
 
-And finally we've the Sshguard settings. Sshguard protects from brute force attacks against SSH. To avoid locking out yourself for a while you can add IPs or IP ranges to a whitelist. By default it's basically only "localhost":
+Next we've the Sshguard settings. Sshguard protects from brute force attacks against SSH. To avoid locking out yourself for a while you can add IPs or IP ranges to a whitelist. By default it's basically only "localhost":
 ```
 harden_linux_sshguard_whitelist:
   - "127.0.0.0/8"
   - "::1/128"
+```
+
+And finally a NTP package can be installed. This is optional. By default `openntpd` is used. You can als use `ntp` package. But `openntpd` has the advantage that it doesn't listen on any ports by default. If you just want to keep the hosts clock in sync this is absolutely sufficient. Having the same time on all your hosts is critical for some services. E.g. for certificate validation, for etcd, databases, ... If you remove this variable no NTP package will be installed and you're on your own:
+
+```
+
+harden_linux_ntp: "openntpd"
+
+```
+Settings for `openntpd` or `ntpd`. For further options see ntpd.conf(5). The `key` here is a regex of a setting you want to replace and the value is the setting name + the setting value. E.g. we want to replace the line `servers 0.debian.pool.ntp.org` with `servers 1.debian.pool.ntp.org`. The regex (the key) would be `^servers 0` which means "search for a line in "ntpd.conf" that begins with 'server 0' and replace the whole line with 'servers 1.debian.pool.ntp.org'". This enables you to replace every setting in `ntpd.conf`:
+
+```
+harden_linux_ntp_settings:
+  "^servers 0": "servers 0.debian.pool.ntp.org"
+  "^servers 1": "servers 1.debian.pool.ntp.org"
+  "^servers 2": "servers 2.debian.pool.ntp.org"
+  "^servers 3": "servers 3.debian.pool.ntp.org"
 ```
 
 Example Playbook

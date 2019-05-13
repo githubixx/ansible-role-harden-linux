@@ -1,6 +1,10 @@
 Changelog
 ---------
 
+**v4.0.0**
+
+- introduce `harden_linux_ntp` and `harden_linux_ntp_settings` variables. `openntpd` is installed by default now. See README for more information. If `harden_linux_ntp` variable isn't set no ntp service will be installed.
+
 **v3.1.0**
 
 - fix deprecation warning in "install required packages" task
