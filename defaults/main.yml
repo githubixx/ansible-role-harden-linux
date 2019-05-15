@@ -17,7 +17,7 @@ harden_linux_required_packages:
 # Having the same time on all your hosts is critical for some services. E.g. for
 # certificate validation, for etcd, databases, ... If you remove this variable
 # no NTP package will be installed and you're on your own.
-harden_linux_ntp: "openntpd"
+#harden_linux_ntp: "openntpd"
 
 # Settings for "openntpd" or "ntpd". For further options see ntpd.conf(5).
 # The "key" here is a regex of a setting you want to replace and the value is
