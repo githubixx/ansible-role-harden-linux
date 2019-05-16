@@ -1,0 +1,31 @@
+---
+dependency:
+  name: galaxy
+driver:
+  name: docker
+lint:
+  name: yamllint
+platforms:
+  - name: ubuntu18
+    image: ubuntu:18.04
+    privileged: True
+    volumes:
+      - "/sys/fs/cgroup:/sys/fs/cgroup:ro"
+    command: "/sbin/init"
+    capabilities:
+      - SYS_ADMIN
+provisioner:
+  name: ansible
+  log: true
+  options:
+    vvv: true
+  config_options:
+    defaults:
+      stdout_callback: yaml
+      callback_whitelist: profile_tasks, timer
+  lint:
+    name: ansible-lint
+verifier:
+  name: testinfra
+  lint:
+    name: flake8
