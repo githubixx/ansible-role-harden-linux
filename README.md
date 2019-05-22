@@ -180,6 +180,8 @@ harden_linux_ntp_settings:
   "^servers 3": "servers 3.debian.pool.ntp.org"
 ```
 
+One final note: If you use Ubuntu with unattended updates enabled you need to make sure that the `wireguard-dkms` module is reinstalled for every new kernel. As WireGuard still isn't part of the official kernel it's installed via `DKMS`. If you reboot a host with a new kernel and `wiregard-dkms` packages wasn't reinstalled before the reboot the host will probably start without WireGuard module and therefor without WireGuard interface. Handling this situation can be a little bit challenging. So for Ubuntu users maybe my [Ansible Ubuntu update playbook](https://github.com/githubixx/ansible-ubuntu-update) might help a little bit.
+
 Example Playbook
 ----------------
 
