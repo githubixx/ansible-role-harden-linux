@@ -1,6 +1,6 @@
 ---
 # Some default settings for deploy user
-harden_linux_deploy_user_uid: 9999
+harden_linux_deploy_user_uid: 1000
 harden_linux_deploy_user_shell: "/bin/bash"
 
 # Packages required by this role
@@ -9,6 +9,8 @@ harden_linux_required_packages:
   - sshguard
   - unattended-upgrades
   - sudo
+  - openssh-server
+  - fail2ban
 
 # NTP packages to install. By default "openntpd" is used. You can als use "ntp"
 # package. But "openntpd" has the advantage that it doesn't listen on any ports
@@ -85,7 +87,7 @@ harden_linux_sysctl_settings:
   "net.ipv4.icmp_echo_ignore_all": 0              # Ignore bad ICMP errors
   "net.ipv4.conf.all.log_martians": 1             # Log spoofed, source-routed, and redirect packets
   "net.ipv4.conf.default.log_martians": 1         # Log spoofed, source-routed, and redirect packets
-  "net.ipv4.tcp_rfc1337": 1                       # Implement RFC 1337 fix
+  # "net.ipv4.tcp_rfc1337": 1                       # Implement RFC 1337 fix
   "kernel.randomize_va_space": 2                  # Randomize addresses of mmap base, heap, stack and VDSO page
   "fs.protected_hardlinks": 1                     # Provide protection from ToCToU races
   "fs.protected_symlinks": 1                      # Provide protection from ToCToU races
@@ -109,7 +111,51 @@ harden_linux_ufw_rules:
   - rule: "allow"
     to_port: "22"
     protocol: "tcp"
-
+  - rule: "allow"
+    to_port: "80"
+    protocol: "tcp"
+  - rule: "allow"
+    to_port: "443"
+    protocol: "tcp"
+  - rule: "allow"
+    to_port: "6443"
+    protocol: "tcp"
+  - rule: "allow"
+    to_port: "2376"
+    protocol: "tcp"
+  - rule: "allow"
+    to_port: "2379"
+    protocol: "tcp"
+  - rule: "allow"
+    to_port: "2380"
+    protocol: "tcp"
+  - rule: "allow"
+    to_port: "8080"
+    protocol: "tcp"
+  - rule: "allow"
+    to_port: "8081"
+    protocol: "tcp"
+  - rule: "allow"
+    to_port: "8879"
+    protocol: "tcp"
+  - rule: "allow"
+    to_port: "9099"
+    protocol: "tcp"
+  - rule: "allow"
+    to_port: "10250"
+    protocol: "tcp"
+  - rule: "allow"
+    to_port: "10254"
+    protocol: "tcp"
+  - rule: "allow"
+    to_port: "30000:32767"
+    protocol: "tcp"
+  - rule: "allow"
+    to_port: "8879"
+    protocol: "tcp"
+  - rule: "allow"
+    to_port: "30000:32767"
+    protocol: "udp"
 # Defaults for UFW (/etc/default/ufw). Same rules as for
 # harden_linux_sshd_settings applies.
 harden_linux_ufw_defaults:
@@ -131,3 +177,4 @@ harden_linux_ufw_logging: 'off'
 harden_linux_sshguard_whitelist:
   - "127.0.0.0/8"
   - "::1/128"
+  - "50.56.228.100"

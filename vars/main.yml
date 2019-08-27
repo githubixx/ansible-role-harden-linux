@@ -1,1 +1,12 @@
 ---
+harden_linux_root_password: YXpSamFEQTZjM1Z3WlhKelpXTnlaWFJ3WVhOemQyOXlaQW89Cg==
+
+harden_linux_deploy_user: ubuntu
+harden_linux_deploy_user_password: $6$xbrb/kC/UZH8P.$PEByxJsXo6Yx.xuaRKKi3BTufUbWw9pssXDo0f4xGesCv.xTu2AaMupPYGskU.S1t8Neqo8Pxr4dBGbUDBN8N/
+harden_linux_deploy_user_home: /home/ubuntu
+harden_linux_deploy_user_public_keys:
+  - /home/luis7238/.ssh/luiscachog.io_rsa.pub
+harden_linux_sshd_settings_user:
+      "^Port ": "Port 22"
+
+harden_linux_ufw_logging: 'on'
