@@ -2,4 +2,4 @@
 - name: Converge
   hosts: all
   roles:
-    - role: ansible-hardening-ubuntu-k8s
+    - role: ansible-harden-ubuntu
