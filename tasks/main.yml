@@ -158,6 +158,13 @@
   tags:
     - ufw
 
+- name: Combine harden_linux_ufw_rules and harden_linux_ufw_rules_user (if defined)
+  set_fact:
+    harden_linux_ufw_rules: "{{ harden_linux_ufw_rules | union(harden_linux_ufw_rules_user|default({})) }}"
+  when: harden_linux_ufw_rules_user is defined
+  tags:
+    - ufw
+
 - name: UFW - Apply firewall rules
   ufw:
     rule: "{{ item.rule }}"
@@ -170,6 +177,7 @@
     protocol: "{{ item.protocol | default('any') }}"
     log: "{{ item.log | default(False) }}"
   with_items: "{{ harden_linux_ufw_rules }}"
+
   tags:
     - ufw
     - ufwrules

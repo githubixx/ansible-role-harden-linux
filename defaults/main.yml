@@ -106,9 +106,10 @@ harden_linux_sshd_settings:
 
 # By default we only allow SSH inbound traffic.
 harden_linux_ufw_rules:
-  - rule: "allow"
-    to_port: "22"
-    protocol: "tcp"
+    - service: "ssh"
+      rule: "allow"
+      to_port: "22"
+      protocol: "tcp"
 
 # Defaults for UFW (/etc/default/ufw). Same rules as for
 # harden_linux_sshd_settings applies.
