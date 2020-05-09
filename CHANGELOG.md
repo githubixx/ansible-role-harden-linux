@@ -1,10 +1,6 @@
 Changelog
 ---------
 
-**v4.0.2**
-
-- update README mentioning reinstalling wireguard-dkms package after kernel upgrade
-
 **v4.0.1**
 
 - make `harden_linux_ntp` optional (commented in `defaults/main.yml`).
