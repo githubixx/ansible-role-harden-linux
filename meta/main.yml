@@ -8,9 +8,12 @@ galaxy_info:
     versions:
     - xenial
     - bionic
+    - focal
   galaxy_tags:
     - networking
     - security
     - linux
     - firewall
     - ssh
+    - harden
+    - ufw

@@ -1,6 +1,10 @@
 Changelog
 ---------
 
+**v4.0.3**
+
+- Updated for Ubuntu 20.04 LTS
+
 **v4.0.1**
 
 - make `harden_linux_ntp` optional (commented in `defaults/main.yml`).
