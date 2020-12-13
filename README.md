@@ -40,7 +40,11 @@ harden_linux_deploy_user_public_keys:
   - /home/your_user/.ssh/id_rsa.pub
 ```
 
-With `harden_linux_root_password` and `harden_linux_deploy_user_password` we specify the password for the `root` user and the `deploy` user. Ansible won't encrypt the password for you. To create a encrypted password you can do so e.g. with `python -c 'import crypt; print crypt.crypt("This is my Password", "$1$SomeSalt$")'` (You may need `python2` instead of `python` in case of Archlinux e.g.).
+With `harden_linux_root_password` and `harden_linux_deploy_user_password` we specify the password for the `root` user and the `deploy` user. Ansible won't encrypt the password for you. How to create an encrypted password is described in the [Ansible FAQs](http://docs.ansible.com/ansible/latest/reference_appendices/faq.html#how-do-i-generate-encrypted-passwords-for-the-user-module). But as Ansible is installed anyways the most easiest way is probably the following command:
+
+```
+ansible all -i localhost, -m debug -a "msg={{ 'mypassword' | password_hash('sha512', 'mysecretsalt') }}"
+```
 
 `harden_linux_deploy_user` specifies the user we want to use to login at the remote host. As already mentioned the `harden-linux` role will disable root user login via SSH for a good reason. So we need a different user. This user will get "sudo" permission which we need for Ansible (and yourself of course) to do it's work.
 
