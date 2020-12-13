@@ -1,0 +1,101 @@
+---
+dependency:
+  name: galaxy
+
+driver:
+  name: vagrant
+  provider:
+    name: libvirt
+    type: libvirt
+    options:
+      memory: 192
+      cpus: 2
+
+platforms:
+  - name: test-harden-linux-ubuntu2004
+    box: generic/ubuntu2004
+    interfaces:
+      - auto_config: true
+        network_name: private_network
+        type: static
+        ip: 192.168.10.10
+  - name: test-harden-linux-ubuntu1804
+    box: generic/ubuntu1804
+    interfaces:
+      - auto_config: true
+        network_name: private_network
+        type: static
+        ip: 192.168.10.20
+
+provisioner:
+  name: ansible
+  connection_options:
+    ansible_ssh_user: vagrant
+    ansible_become: true
+  log: true
+  lint:
+    name: ansible-lint
+  inventory:
+    group_vars:
+      all:
+        harden_linux_required_packages:
+          - ufw
+          - sshguard
+          - unattended-upgrades
+          - sudo
+          - net-tools
+          - mlocate
+        harden_linux_root_password: "{{ lookup('file', 'myuserpassword_hash') }}" # mypassword
+        harden_linux_deploy_user: deployer
+        harden_linux_deploy_user_password: "{{ lookup('file', 'myuserpassword_hash') }}" # mypassword
+        harden_linux_deploy_user_home: /home/deployer
+        harden_linux_sshd_settings:
+          "^PasswordAuthentication": "PasswordAuthentication yes"
+        harden_linux_ntp: "openntpd"
+        harden_linux_ntp_settings:
+          "^servers 0": "servers 0.debian.pool.ntp.org"
+          "^servers 1": "servers 1.debian.pool.ntp.org"
+          "^servers 2": "servers 2.debian.pool.ntp.org"
+          "^servers 3": "servers 3.debian.pool.ntp.org"
+        harden_linux_sysctl_settings_user:
+          "net.ipv4.ip_forward": 1
+          "net.ipv6.conf.default.forwarding": 1
+          "net.ipv6.conf.all.forwarding": 1
+        harden_linux_ufw_allow_networks:
+          - "10.0.0.0/8"
+          - "172.16.0.0/12"
+          - "192.168.0.0/16"
+        harden_linux_ufw_logging: 'on'
+        harden_linux_ufw_defaults_user:
+          "^DEFAULT_FORWARD_POLICY": 'DEFAULT_FORWARD_POLICY="ACCEPT"'
+        harden_linux_ufw_rules:
+          - rule: "allow"
+            to_port: "22"
+            protocol: "tcp"
+          - rule: "allow"
+            to_port: "80"
+            protocol: "tcp"
+          - rule: "allow"
+            to_port: "443"
+            protocol: "tcp"
+        harden_linux_sshguard_whitelist:
+          - "127.0.0.0/8"
+          - "::1/128"
+          - "10.0.0.0/8"
+
+scenario:
+  name: kvm
+  test_sequence:
+    - prepare
+    - converge
+
+verifier:
+  name: testinfra
+  directory: tests
+  options:
+    # Add a -v so you see the individual test names,
+    # particularly useful with parameterized tests
+    v: true
+    sudo: true
+  lint:
+    name: flake8

@@ -1,0 +1,9 @@
+---
+- hosts: all
+  remote_user: vagrant
+  become: true
+  gather_facts: true
+  tasks:
+    - name: Include harden-linux role
+      include_role:
+        name: githubixx.harden-linux
