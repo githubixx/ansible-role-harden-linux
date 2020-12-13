@@ -1,6 +1,11 @@
 Changelog
 ---------
 
+**v4.1.0**
+
+- Added basic Molecule tests
+- updated README about how to generate encrypted passwords
+
 **v4.0.3**
 
 - Updated for Ubuntu 20.04 LTS
