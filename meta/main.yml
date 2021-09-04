@@ -1,12 +1,11 @@
 galaxy_info:
   author: Robert Wimmer
-  description: Ansible role for hardening Linux (targeting Ubuntu 16.04/18.04/20.04 mainly)
+  description: Ansible role for hardening Linux (targeting Ubuntu 18.04/20.04 mainly)
   license: GPLv3
   min_ansible_version: 2.5
   platforms:
   - name: Ubuntu
     versions:
-    - xenial
     - bionic
     - focal
   galaxy_tags:
