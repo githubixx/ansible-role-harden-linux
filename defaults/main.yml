@@ -53,8 +53,7 @@ harden_linux_ntp_settings:
 # This would be cool but doesn't work with UFW very well so leave it out:
 # "kernel.modules_disabled": 1                    # Disable CAP_SYS_MODULE which allows for loading and unloading of kernel modules.
                                                   # If you set kernel.modules_disabled=1 you're not able to load new netfilter/iptable
-                                                  # modules anymore (at least on Ubuntu 16.04)! So "ufw" would fail to start if
-                                                  # it is loaded afterwards.
+                                                  # modules anymore! So "ufw" would fail to start if it is loaded afterwards.
 # Add this to "sysctl_settings_user" to turn off ipv6 autoconfiguration:
 # "net.ipv6.conf.default.autoconf": 0
 # "net.ipv6.conf.all.autoconf": 0
