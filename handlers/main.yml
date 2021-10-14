@@ -13,3 +13,8 @@
   service:
     name: "{{ harden_linux_ntp }}"
     state: restarted
+
+- name: restart systemd-timesyncd
+  service:
+    name: systemd-timesyncd
+    state: restarted

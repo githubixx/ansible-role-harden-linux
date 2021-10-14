@@ -1,0 +1,50 @@
+---
+- name: Populate service facts
+  service_facts:
+
+- name: (systemd-timesyncd) Disable other ntp services
+  service:
+    name: "{{ item }}"
+    state: "stopped"
+    enabled: "no"
+  when: ansible_facts.services[item + '.service'] is defined
+  with_items:
+    - ntp
+    - openntpd
+
+- name: (systemd-timesyncd) Setup configuration
+  block:
+    - name: (systemd-timesyncd) Create directory for systemd drop-in
+      file:
+        path: "/etc/systemd/timesyncd.conf.d"
+        state: "directory"
+        mode: "0755"
+        owner: "root"
+        group: "root"
+
+    - name: (systemd-timesyncd) Create systemd drop-in base file
+      copy:
+        src: "etc/systemd/timesyncd.conf.d/99-harden-linux-timesyncd.conf"
+        dest: "/etc/systemd/timesyncd.conf.d/99-harden-linux-timesyncd.conf"
+        mode: "0644"
+        owner: "root"
+        group: "root"
+        force: "no"
+
+    - name: (systemd-timesyncd) Adjust timesyncd.conf
+      lineinfile:
+        dest: "/etc/systemd/timesyncd.conf.d/99-harden-linux-timesyncd.conf"
+        regexp: "{{ item }}"
+        line: "{{ harden_linux_ntp_settings[item] }}"
+        state: "present"
+      notify: "restart systemd-timesyncd"
+      with_items:
+        - "{{ harden_linux_ntp_settings | list }}"
+  when:
+    - harden_linux_ntp_settings is defined
+
+- name: (systemd-timesyncd) Enable systemd service
+  service:
+    name: "systemd-timesyncd"
+    state: "started"
+    enabled: "yes"

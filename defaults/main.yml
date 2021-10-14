@@ -1,40 +1,82 @@
 ---
 # Some default settings for deploy user
+
 harden_linux_deploy_user_uid: 9999
 harden_linux_deploy_user_shell: "/bin/bash"
 
 # Packages required by this role
+
 harden_linux_required_packages:
   - ufw
   - sshguard
   - unattended-upgrades
   - sudo
 
-# NTP packages to install. By default "openntpd" is used. You can als use "ntp"
-# package. But "openntpd" has the advantage that it doesn't listen on any ports
-# by default. If you just want to keep the hosts clock in sync this is absolutely
-# sufficient.
+# NTP package to install. Valid options are:
+#
+# - openntpd
+# - ntp
+# - systemd-timesyncd
+#
+# "openntpd" and "systemd-timesyncd" have the advantage that they don't listen
+# on any ports by default. If you just want to keep the hosts clock in sync one
+# of those two should do the job. "systemd-timesyncd" is already installed if
+# a distribution uses "systemd". So no additional packages are needed.
+#
 # Having the same time on all your hosts is critical for some services. E.g. for
-# certificate validation, for etcd, databases, ... If you remove this variable
-# no NTP package will be installed and you're on your own.
-#harden_linux_ntp: "openntpd"
+# certificate validation, for etcd, databases, ... By default "harden_linux_ntp"
+# variable is commented so no NTP service will be installed.
+#
+# harden_linux_ntp: "openntpd"
+# harden_linux_ntp: "ntp"
+# harden_linux_ntp: "systemd-timesyncd"
 
-# Settings for "openntpd" or "ntpd". For further options see ntpd.conf(5).
-# The "key" here is a regex of a setting you want to replace and the value is
-# the setting name + the setting value. E.g. we want to replace the line
+# Settings for "openntpd", "ntpd" or "systemd-timesyncd" (see next paragraph).
+# For further options see man page: "man 5 ntpd.conf" for "ntp" and "openntpd"
+# and "man 5 timesyncd.conf" for "systemd-timesyncd".
+#
+# The "key" here is a regular expression of a setting you want to replace and the
+# value is the setting name + the setting value. E.g. we want to replace the line
 # "servers 0.debian.pool.ntp.org" with "servers 1.debian.pool.ntp.org".
-# The regex (the key) would be "^servers 0" which
-# means "search for a line in "ntpd.conf" that begins with 'server 0'
+# The regex (the key) would be "^servers 0" which means:
+#
+# "search for a line in the configuration file that begins with 'server 0'
 # and replace the whole line with 'servers 1.debian.pool.ntp.org'".
-# This enables you to replace every setting in "ntpd.conf".
-harden_linux_ntp_settings:
-  "^servers 0": "servers 0.debian.pool.ntp.org"
-  "^servers 1": "servers 1.debian.pool.ntp.org"
-  "^servers 2": "servers 2.debian.pool.ntp.org"
-  "^servers 3": "servers 3.debian.pool.ntp.org"
+# This way every setting in the configuration file can be replaced by something
+# else. Some examples:
+#
+# harden_linux_ntp_settings:
+#   "^servers 0": "servers 0.debian.pool.ntp.org"
+#   "^servers 1": "servers 1.debian.pool.ntp.org"
+#   "^servers 2": "servers 2.debian.pool.ntp.org"
+#   "^servers 3": "servers 3.debian.pool.ntp.org"
+#
+# Please NOTE: "systemd-timesyncd" comes with reasonable compile time defaults.
+# So there is normally no need to change the configuration (not even the NTP
+# servers). So the following are just examples but you don't really need to
+# specify "harden_linux_ntp_settings" for "systemd-timesyncd".
+#
+# For "systemd-timesyncd" the configuration file is a little bit different.
+# In this case a systemd drop-in for "/etc/systemd/timesyncd.conf" will be
+# created at "/etc/systemd/timesyncd.conf.d/".
+#
+# Example for Debian:
+#
+# harden_linux_ntp_settings:
+#   "^#NTP=": "NTP=0.debian.pool.ntp.org 1.debian.pool.ntp.org 2.debian.pool.ntp.org 3.debian.pool.ntp.org"
+#
+# For Ubuntu:
+#
+# harden_linux_ntp_settings:
+#   "^#NTP=": "NTP=ntp.ubuntu.com"
+#
+# For Archlinux:
+#
+# harden_linux_ntp_settings:
+#   "^#NTP=": "NTP=0.arch.pool.ntp.org 1.arch.pool.ntp.org 2.arch.pool.ntp.org 3.arch.pool.ntp.org"
 
-# Most of this settings are recommendations from Google which they use for
-# their Google Compute Cloud OS images and from UFW firewall. Add more settings
+# Most of the following sysctl settings are recommendations from Google which they use
+# for their Google Compute Cloud OS images and from UFW firewall. Add more settings
 # on your own by adding a group or host variable called "sysctl_settings_user".
 # "sysctl_settings" and "sysctl_settings_user" will get merged by a
 # task. You can also override a setting defined in "sysctl_settings"
@@ -46,13 +88,15 @@ harden_linux_ntp_settings:
 # https://cloud.google.com/compute/docs/images/configuring-imported-images
 # With ufw package installed: /etc/ufw/sysctl.conf
 #
-# The following settings are not available in Scaleway's Linux image but maybe
-# other use it (keep it for reference):
-# "kernel.yama.ptrace_scope": 1                   # Set ptrace protections
+# The following settings are not available for all kernels so they you need
+# to figure out if you want to include them.
+#
+# "kernel.yama.ptrace_scope": 1                   # Set ptrace protections. See:
+                                                  # https://www.kernel.org/doc/Documentation/security/Yama.txt
 #
 # This would be cool but doesn't work with UFW very well so leave it out:
 # "kernel.modules_disabled": 1                    # Disable CAP_SYS_MODULE which allows for loading and unloading of kernel modules.
-                                                  # If you set kernel.modules_disabled=1 you're not able to load new netfilter/iptable
+                                                  # If you set kernel.modules_disabled=1 you're not able to load new netfilter/iptables
                                                   # modules anymore! So "ufw" would fail to start if it is loaded afterwards.
 # Add this to "sysctl_settings_user" to turn off ipv6 autoconfiguration:
 # "net.ipv6.conf.default.autoconf": 0
@@ -62,41 +106,42 @@ harden_linux_ntp_settings:
 # "net.ipv6.conf.default.use_tempaddr": 2
 # "net.ipv6.conf.all.use_tempaddr": 2
 harden_linux_sysctl_settings:
-  "net.ipv4.tcp_syncookies": 1                    # Enable syn flood protection
-  "net.ipv4.conf.all.accept_source_route": 0      # Ignore source-routed packets
-  "net.ipv6.conf.all.accept_source_route": 0      # IPv6 - Ignore ICMP redirects
-  "net.ipv4.conf.default.accept_source_route": 0  # Ignore source-routed packets
-  "net.ipv6.conf.default.accept_source_route": 0  # IPv6 - Ignore source-routed packets
-  "net.ipv4.conf.all.accept_redirects": 0         # Ignore ICMP redirects
-  "net.ipv6.conf.all.accept_redirects": 0         # IPv6 - Ignore ICMP redirects
-  "net.ipv4.conf.default.accept_redirects": 0     # Ignore ICMP redirects
-  "net.ipv6.conf.default.accept_redirects": 0     # IPv6 - Ignore ICMP redirects
-  "net.ipv4.conf.all.secure_redirects": 1         # Ignore ICMP redirects from non-GW hosts
-  "net.ipv4.conf.default.secure_redirects": 1     # Ignore ICMP redirects from non-GW hosts
-  "net.ipv4.ip_forward": 0                        # Do not allow traffic between networks or act as a router
-  "net.ipv6.conf.all.forwarding": 0               # IPv6 - Do not allow traffic between networks or act as a router
-  "net.ipv4.conf.all.send_redirects": 0           # Don't allow traffic between networks or act as a router
-  "net.ipv4.conf.default.send_redirects": 0       # Don't allow traffic between networks or act as a router
-  "net.ipv4.conf.all.rp_filter": 1                # Reverse path filtering - IP spoofing protection
-  "net.ipv4.conf.default.rp_filter": 1            # Reverse path filtering - IP spoofing protection
-  "net.ipv4.icmp_echo_ignore_broadcasts": 1       # Ignore ICMP broadcasts to avoid participating in Smurf attacks
-  "net.ipv4.icmp_ignore_bogus_error_responses": 1 # Ignore bad ICMP errors
-  "net.ipv4.icmp_echo_ignore_all": 0              # Ignore bad ICMP errors
-  "net.ipv4.conf.all.log_martians": 1             # Log spoofed, source-routed, and redirect packets
-  "net.ipv4.conf.default.log_martians": 1         # Log spoofed, source-routed, and redirect packets
-  "net.ipv4.tcp_rfc1337": 1                       # Implement RFC 1337 fix
-  "kernel.randomize_va_space": 2                  # Randomize addresses of mmap base, heap, stack and VDSO page
-  "fs.protected_hardlinks": 1                     # Provide protection from ToCToU races
-  "fs.protected_symlinks": 1                      # Provide protection from ToCToU races
-  "kernel.kptr_restrict": 1                       # Make locating kernel addresses more difficult
-  "kernel.perf_event_paranoid": 2                 # Set perf only available to root
+  "net.ipv4.tcp_syncookies": 1                     # Enable syn flood protection
+  "net.ipv4.conf.all.accept_source_route": 0       # Ignore source-routed packets
+  "net.ipv6.conf.all.accept_source_route": 0       # IPv6 - Ignore ICMP redirects
+  "net.ipv4.conf.default.accept_source_route": 0   # Ignore source-routed packets
+  "net.ipv6.conf.default.accept_source_route": 0   # IPv6 - Ignore source-routed packets
+  "net.ipv4.conf.all.accept_redirects": 0          # Ignore ICMP redirects
+  "net.ipv6.conf.all.accept_redirects": 0          # IPv6 - Ignore ICMP redirects
+  "net.ipv4.conf.default.accept_redirects": 0      # Ignore ICMP redirects
+  "net.ipv6.conf.default.accept_redirects": 0      # IPv6 - Ignore ICMP redirects
+  "net.ipv4.conf.all.secure_redirects": 1          # Ignore ICMP redirects from non-GW hosts
+  "net.ipv4.conf.default.secure_redirects": 1      # Ignore ICMP redirects from non-GW hosts
+  "net.ipv4.ip_forward": 0                         # Do not allow traffic between networks or act as a router
+  "net.ipv6.conf.all.forwarding": 0                # IPv6 - Do not allow traffic between networks or act as a router
+  "net.ipv4.conf.all.send_redirects": 0            # Don't allow traffic between networks or act as a router
+  "net.ipv4.conf.default.send_redirects": 0        # Don't allow traffic between networks or act as a router
+  "net.ipv4.conf.all.rp_filter": 1                 # Reverse path filtering - IP spoofing protection
+  "net.ipv4.conf.default.rp_filter": 1             # Reverse path filtering - IP spoofing protection
+  "net.ipv4.icmp_echo_ignore_broadcasts": 1        # Ignore ICMP broadcasts to avoid participating in Smurf attacks
+  "net.ipv4.icmp_ignore_bogus_error_responses": 1  # Ignore bad ICMP errors
+  "net.ipv4.icmp_echo_ignore_all": 0               # Ignore bad ICMP errors
+  "net.ipv4.conf.all.log_martians": 1              # Log spoofed, source-routed, and redirect packets
+  "net.ipv4.conf.default.log_martians": 1          # Log spoofed, source-routed, and redirect packets
+  "net.ipv4.tcp_rfc1337": 1                        # Implement RFC 1337 fix
+  "kernel.randomize_va_space": 2                   # Randomize addresses of mmap base, heap, stack and VDSO page
+  "fs.protected_hardlinks": 1                      # Provide protection from ToCToU races
+  "fs.protected_symlinks": 1                       # Provide protection from ToCToU races
+  "kernel.kptr_restrict": 1                        # Make locating kernel addresses more difficult
+  "kernel.perf_event_paranoid": 2                  # Set perf only available to root
 
 # The "key" here is a regex of a setting you want to replace and the value is
 # the setting name + the setting value. E.g. we want to replace the line
-# "Port 22" with "Port 22222". The regex (the key) would be "^Port 22 " which
-# means "search for a line in /etc/ssh/sshd_config that begins with 'Port 22 '
+# "Port 22" with "Port 22222". The regex (the key) would be "^Port " which
+# means "search for a line in "/etc/ssh/sshd_config" that begins with 'Port'
 # and replace the whole line with 'Port 22222'". This enables you to replace
-# every setting in sshd_config.
+# every setting in "sshd_config".
+
 harden_linux_sshd_settings:
   "^PasswordAuthentication": "PasswordAuthentication no"  # Disable password authentication
   "^PermitRootLogin": "PermitRootLogin no"                # Disable SSH root login
@@ -104,6 +149,7 @@ harden_linux_sshd_settings:
   "^Port ": "Port 22"                                     # Set SSHd port
 
 # By default we only allow SSH inbound traffic.
+
 harden_linux_ufw_rules:
   - rule: "allow"
     to_port: "22"
@@ -111,6 +157,7 @@ harden_linux_ufw_rules:
 
 # Defaults for UFW (/etc/default/ufw). Same rules as for
 # harden_linux_sshd_settings applies.
+
 harden_linux_ufw_defaults:
   "^IPV6": 'IPV6=yes'
   "^DEFAULT_INPUT_POLICY": 'DEFAULT_INPUT_POLICY="DROP"'
@@ -127,6 +174,7 @@ harden_linux_ufw_logging: 'off'
 # SSHGuard whitelist. SSHGuard blocks IPs for some time if
 # to many login attempts fail. Specify IP (ranges) that
 # should not be blocked
+
 harden_linux_sshguard_whitelist:
   - "127.0.0.0/8"
   - "::1/128"

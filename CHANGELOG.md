@@ -1,6 +1,10 @@
 Changelog
 ---------
 
+**v5.1.0**
+
+- add `systemd-timesyncd` as additional option for `harden_linux_ntp`
+
 **v5.0.0**
 
 - Remove Ubunut 16.04 support
