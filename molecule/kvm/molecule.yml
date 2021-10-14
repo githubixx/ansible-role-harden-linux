@@ -12,20 +12,27 @@ driver:
       cpus: 2
 
 platforms:
-  - name: test-harden-linux-ubuntu2004
+  - name: test-harden-linux-ubuntu2004-timesyncd
     box: generic/ubuntu2004
     interfaces:
       - auto_config: true
         network_name: private_network
         type: static
         ip: 192.168.10.10
-  - name: test-harden-linux-ubuntu1804
-    box: generic/ubuntu1804
+  - name: test-harden-linux-ubuntu2004-ntp
+    box: generic/ubuntu2004
     interfaces:
       - auto_config: true
         network_name: private_network
         type: static
         ip: 192.168.10.20
+  - name: test-harden-linux-ubuntu1804-openntpd
+    box: generic/ubuntu1804
+    interfaces:
+      - auto_config: true
+        network_name: private_network
+        type: static
+        ip: 192.168.10.30
 
 provisioner:
   name: ansible
@@ -51,12 +58,6 @@ provisioner:
         harden_linux_deploy_user_home: /home/deployer
         harden_linux_sshd_settings:
           "^PasswordAuthentication": "PasswordAuthentication yes"
-        harden_linux_ntp: "openntpd"
-        harden_linux_ntp_settings:
-          "^servers 0": "servers 0.debian.pool.ntp.org"
-          "^servers 1": "servers 1.debian.pool.ntp.org"
-          "^servers 2": "servers 2.debian.pool.ntp.org"
-          "^servers 3": "servers 3.debian.pool.ntp.org"
         harden_linux_sysctl_settings_user:
           "net.ipv4.ip_forward": 1
           "net.ipv6.conf.default.forwarding": 1
@@ -82,6 +83,25 @@ provisioner:
           - "127.0.0.0/8"
           - "::1/128"
           - "10.0.0.0/8"
+    host_vars:
+      test-harden-linux-ubuntu2004-timesyncd:
+        harden_linux_ntp: "systemd-timesyncd"
+        harden_linux_ntp_settings:
+          "^#NTP=": "NTP=ntp.ubuntu.com"
+      test-harden-linux-ubuntu2004-ntp:
+        harden_linux_ntp: "ntp"
+        harden_linux_ntp_settings:
+          "^pool 0": "pool 0.ubuntu.pool.ntp.org iburst"
+          "^pool 1": "pool 1.ubuntu.pool.ntp.org iburst"
+          "^pool 2": "pool 2.ubuntu.pool.ntp.org iburst"
+          "^pool 3": "pool 3.ubuntu.pool.ntp.org iburst"
+      test-harden-linux-ubuntu1804-openntpd:
+        harden_linux_ntp: "openntpd"
+        harden_linux_ntp_settings:
+          "^servers 0": "servers 0.debian.pool.ntp.org"
+          "^servers 1": "servers 1.debian.pool.ntp.org"
+          "^servers 2": "servers 2.debian.pool.ntp.org"
+          "^servers 3": "servers 3.debian.pool.ntp.org"
 
 scenario:
   name: kvm

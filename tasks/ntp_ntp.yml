@@ -1,0 +1,30 @@
+---
+- name: Populate service facts
+  service_facts:
+
+- name: (ntp) Disable other ntp services
+  service:
+    name: "{{ item }}"
+    state: "stopped"
+    enabled: "no"
+  when: ansible_facts.services[item + '.service'] is defined
+  with_items:
+    - openntpd
+    - systemd-timesyncd
+
+- name: (ntp) Install package
+  package:
+    name: ntp
+    state: present
+
+- name: (ntp) Adjust ntp.conf settings
+  lineinfile:
+    dest: "/etc/ntp.conf"
+    regexp: "{{ item }}"
+    line: "{{ harden_linux_ntp_settings[item] }}"
+    state: "present"
+  notify: "restart ntpd"
+  with_items:
+    - "{{ harden_linux_ntp_settings | list }}"
+  when:
+    - harden_linux_ntp_settings is defined
