@@ -12,15 +12,6 @@
   tags:
     - apt
 
-- name: Install aptitude
-  apt:
-    pkg: aptitude
-    state: present
-  retries: 2
-  delay: 5
-  tags:
-    - apt
-
 - name: Upgrade APT to the latest packages
   apt:
     upgrade: safe
