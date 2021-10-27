@@ -32,7 +32,7 @@
     - ufw
     - install
 
-- name: Delete root pw file /root/.pw (if present)
+- name: Ensure files absent
   file:
     path: "{{ file_to_delete }}"
     state: absent
