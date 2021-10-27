@@ -33,6 +33,13 @@ platforms:
         network_name: private_network
         type: static
         ip: 192.168.10.30
+  - name: test-harden-linux-arch-timesyncd
+    box: archlinux/archlinux
+    interfaces:
+      - auto_config: true
+        network_name: private_network
+        type: static
+        ip: 192.168.10.40
 
 provisioner:
   name: ansible
@@ -102,6 +109,8 @@ provisioner:
           "^servers 1": "servers 1.debian.pool.ntp.org"
           "^servers 2": "servers 2.debian.pool.ntp.org"
           "^servers 3": "servers 3.debian.pool.ntp.org"
+      test-harden-linux-arch-timesyncd:
+        harden_linux_ntp: "systemd-timesyncd"
 
 scenario:
   name: kvm
