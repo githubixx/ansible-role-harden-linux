@@ -22,14 +22,14 @@
   tags:
     - install
 
-- name: "({{ ansible_distribution }}) Install required packages"
+- name: "Install optional packages"
   package:
-    pkg: "{{ harden_linux_required_packages }}"
+    pkg: "{{ harden_linux_optional_packages }}"
     state: present
+  when: harden_linux_optional_packages is defined
   retries: 2
   delay: 5
   tags:
-    - ufw
     - install
 
 - name: Ensure files absent

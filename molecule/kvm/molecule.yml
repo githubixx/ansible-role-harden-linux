@@ -52,7 +52,7 @@ provisioner:
   inventory:
     group_vars:
       all:
-        harden_linux_required_packages:
+        harden_linux_optional_packages:
           - unattended-upgrades
           - sudo
           - net-tools

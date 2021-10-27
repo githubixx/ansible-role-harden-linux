@@ -1,5 +1,5 @@
 ---
-harden_linux_required_packages:
+harden_linux_optional_packages:
   - sudo
 
 harden_linux_sshguard_whitelist_directory: "/etc/sshguard"
