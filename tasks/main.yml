@@ -7,11 +7,6 @@
     - "{{ ansible_distribution|lower }}.yml"
     - "{{ ansible_os_family|lower }}.yml"
 
-- name: Delete root pw file /root/.pw (if present)
-  file:
-    path: /root/.pw
-    state: absent
-
 - name: OS specific setup
   include_tasks:
     file: "{{ item }}"
@@ -36,6 +31,14 @@
   tags:
     - ufw
     - install
+
+- name: Delete root pw file /root/.pw (if present)
+  file:
+    path: "{{ file_to_delete }}"
+    state: absent
+  loop: "{{ harden_linux_files_to_delete }}"
+  loop_control:
+    loop_var: file_to_delete
 
 - name: Setup NTP related services
   include_tasks:

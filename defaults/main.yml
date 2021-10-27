@@ -3,6 +3,10 @@
 harden_linux_deploy_user_uid: 9999
 harden_linux_deploy_user_shell: "/bin/bash"
 
+# List of files that should be absent on the target host
+harden_linux_files_to_delete:
+  - "/root/.pw"
+
 # NTP package to install. Valid options are:
 #
 # - openntpd
