@@ -1,5 +1,4 @@
 ---
-
 - name: reload ufw
   ufw:
     state: reloaded
@@ -17,4 +16,9 @@
 - name: restart systemd-timesyncd
   service:
     name: systemd-timesyncd
+    state: restarted
+
+- name: restart sshguard
+  service:
+    name: sshguard
     state: restarted
