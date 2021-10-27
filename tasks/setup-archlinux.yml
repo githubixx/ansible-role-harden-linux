@@ -1,0 +1,4 @@
+---
+- name: "({{ ansible_distribution }}) Update pacman cache"
+  pacman:
+    update_cache: "{{ harden_linux_archlinux_update_cache }}"
