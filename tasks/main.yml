@@ -1,31 +1,41 @@
+- name: Load required variables based on the OS type
+  include_vars: "{{ item }}"
+  with_first_found:
+    - "{{ ansible_distribution|lower }}-{{ ansible_distribution_major_version }}.yml"
+    - "{{ ansible_distribution|lower }}-{{ ansible_distribution_version }}.yml"
+    - "{{ ansible_distribution|lower }}-{{ ansible_distribution_release }}.yml"
+    - "{{ ansible_distribution|lower }}.yml"
+    - "{{ ansible_os_family|lower }}.yml"
+
 - name: Delete root pw file /root/.pw (if present)
   file:
     path: /root/.pw
     state: absent
 
-- name: Update APT package cache
-  apt:
-    update_cache: true
-    cache_valid_time: 3600
-  retries: 2
-  delay: 5
+- name: OS specific setup
+  include_tasks:
+    file: "{{ item }}"
+    apply:
+      tags:
+        - install
+  with_first_found:
+    - "setup-{{ ansible_distribution|lower }}-{{ ansible_distribution_major_version }}.yml"
+    - "setup-{{ ansible_distribution|lower }}-{{ ansible_distribution_version }}.yml"
+    - "setup-{{ ansible_distribution|lower }}-{{ ansible_distribution_release }}.yml"
+    - "setup-{{ ansible_distribution|lower }}.yml"
+    - "setup-{{ ansible_os_family|lower }}.yml"
   tags:
-    - apt
+    - install
 
-- name: Upgrade APT to the latest packages
-  apt:
-    upgrade: safe
-  retries: 2
-  delay: 5
-
-- name: Install required packages
-  apt:
-    state: present
+- name: "({{ ansible_distribution }}) Install required packages"
+  package:
     pkg: "{{ harden_linux_required_packages }}"
+    state: present
   retries: 2
   delay: 5
   tags:
     - ufw
+    - install
 
 - name: Setup NTP related services
   include_tasks:
@@ -35,6 +45,8 @@
         - ntpd
   when:
     - harden_linux_ntp is defined
+  tags:
+    - ntpd
 
 - name: Add deploy user
   user:
@@ -65,16 +77,6 @@
   tags:
     - user
     - sudo
-
-- name: Adjust APT update intervals
-  copy:
-    src: etc/apt/apt.conf.d/10periodic
-    dest: /etc/apt/apt.conf.d/10periodic
-    owner: root
-    group: root
-    mode: 0644
-  tags:
-    - apt
 
 - name: Combine harden_linux_sshd_settings and harden_linux_sshd_settings_user (if defined)
   set_fact:
@@ -160,14 +162,12 @@
   tags:
     - ufw
 
-- name: Update Sshguard white list
-  lineinfile:
-    dest: /etc/sshguard/whitelist
-    regexp: "^{{ item }}"
-    line: "{{ item }}"
-    state: present
-  with_items:
-    - "{{ harden_linux_sshguard_whitelist }}"
+- name: Setup sshguard
+  include_tasks:
+    file: "sshguard.yml"
+    apply:
+      tags:
+        - sshguard
   tags:
     - sshguard
 
