@@ -1,16 +1,7 @@
 ---
 # Some default settings for deploy user
-
 harden_linux_deploy_user_uid: 9999
 harden_linux_deploy_user_shell: "/bin/bash"
-
-# Packages required by this role
-
-harden_linux_required_packages:
-  - ufw
-  - sshguard
-  - unattended-upgrades
-  - sudo
 
 # NTP package to install. Valid options are:
 #
@@ -171,10 +162,26 @@ harden_linux_ufw_defaults:
 # Disable/enable UFW logging
 harden_linux_ufw_logging: 'off'
 
-# SSHGuard whitelist. SSHGuard blocks IPs for some time if
-# to many login attempts fail. Specify IP (ranges) that
-# should not be blocked
-
+# sshgard whitelist: sshguard blocks IPs for some time if
+# to many SSH login attempts fail. Specify IP (ranges) that
+# should not be blocked.
 harden_linux_sshguard_whitelist:
   - "127.0.0.0/8"
   - "::1/128"
+
+#######################################
+# Settings only relevant for Ubuntu
+#######################################
+
+# Set to "false" if package cache should not be updated
+harden_linux_ubuntu_update_cache: true
+
+# Set package cache valid time
+harden_linux_ubuntu_cache_valid_time: 3600
+
+#######################################
+# Settings only relevant for Archlinux
+#######################################
+
+# Set to "false" if package cache should not be updated
+harden_linux_archlinux_update_cache: true
