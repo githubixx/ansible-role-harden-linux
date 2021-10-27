@@ -53,8 +53,6 @@ provisioner:
     group_vars:
       all:
         harden_linux_required_packages:
-          - ufw
-          - sshguard
           - unattended-upgrades
           - sudo
           - net-tools
