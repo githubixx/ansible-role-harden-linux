@@ -8,7 +8,7 @@
     state: "stopped"
     enabled: "no"
   when: ansible_facts.services[item + '.service'] is defined
-  with_items:
+  loop:
     - ntp
     - systemd-timesyncd
 
@@ -24,7 +24,6 @@
     line: "{{ harden_linux_ntp_settings[item] }}"
     state: "present"
   notify: "restart ntpd"
-  with_items:
-    - "{{ harden_linux_ntp_settings | list }}"
+  loop: "{{ harden_linux_ntp_settings|flatten }}"
   when:
     - harden_linux_ntp_settings is defined

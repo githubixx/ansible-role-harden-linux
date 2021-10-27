@@ -65,8 +65,7 @@
   authorized_key:
     user: "{{ harden_linux_deploy_user }}"
     key: "{{ lookup('file', item) }}"
-  with_items:
-    - "{{ harden_linux_deploy_user_public_keys }}"
+  loop: "{{ harden_linux_deploy_user_public_keys }}"
   when: harden_linux_deploy_user_public_keys is defined
   tags:
     - user
@@ -94,8 +93,7 @@
     line: "{{ harden_linux_sshd_settings[item] }}"
     state: "present"
   notify: "restart ssh"
-  with_items:
-    - "{{ harden_linux_sshd_settings | list }}"
+  loop: "{{ harden_linux_sshd_settings|flatten }}"
   tags:
     - ssh
 
@@ -110,8 +108,7 @@
     name: "{{ item }}"
     value: "{{ harden_linux_sysctl_settings[item] }}"
     sysctl_set: true
-  with_items:
-    - "{{ harden_linux_sysctl_settings | list }}"
+  loop: "{{ harden_linux_sysctl_settings|flatten }}"
   tags:
     - sysctl
 
@@ -128,8 +125,7 @@
     line: "{{ harden_linux_ufw_defaults[item] }}"
     state: present
   notify: "reload ufw"
-  with_items:
-    - "{{ harden_linux_ufw_defaults | list }}"
+  loop: "{{ harden_linux_ufw_defaults|flatten }}"
   tags:
     - ufw
 
@@ -144,7 +140,7 @@
     to_port: "{{ item.to_port | default('') }}"
     protocol: "{{ item.protocol | default('any') }}"
     log: "{{ item.log | default(False) }}"
-  with_items: "{{ harden_linux_ufw_rules }}"
+  loop: "{{ harden_linux_ufw_rules }}"
   tags:
     - ufw
     - ufwrules
@@ -153,8 +149,7 @@
   ufw:
     rule: allow
     src: "{{ item }}"
-  with_items:
-    - "{{ harden_linux_ufw_allow_networks }}"
+  loop: "{{ harden_linux_ufw_allow_networks }}"
   when: harden_linux_ufw_allow_networks is defined
   tags:
     - ufw

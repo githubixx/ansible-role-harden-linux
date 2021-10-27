@@ -5,8 +5,7 @@
     regexp: "^{{ whitelist_entry }}"
     line: "{{ whitelist_entry }}"
     state: present
-  with_items:
-    - "{{ harden_linux_sshguard_whitelist }}"
+  loop: "{{ harden_linux_sshguard_whitelist }}"
   loop_control:
     loop_var: whitelist_entry
   notify:
