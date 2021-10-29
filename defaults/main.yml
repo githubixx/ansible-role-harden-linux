@@ -9,8 +9,8 @@ harden_linux_files_to_delete:
 
 # List of packages that should be optionally installed. By default this variable
 # is commented out.
-#harden_linux_optional_packages:
-#  - ...
+# harden_linux_optional_packages:
+#   - ...
 
 # NTP package to install. Valid options are:
 #
