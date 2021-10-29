@@ -6,7 +6,24 @@
 - name: restart ssh
   service:
     name: ssh
-    state: restarted
+    state: "{{ item }}"
+  loop:
+    - stopped
+    - started
+  when:
+    - not ansible_distribution|lower == 'archlinux'
+  listen: "restart ssh"
+
+- name: restart sshd
+  service:
+    name: sshd
+    state: "{{ item }}"
+  loop:
+    - stopped
+    - started
+  when:
+    - ansible_distribution|lower == 'archlinux'
+  listen: "restart ssh"
 
 - name: restart ntpd
   service:
