@@ -61,8 +61,11 @@ provisioner:
         harden_linux_deploy_user: deployer
         harden_linux_deploy_user_password: "{{ lookup('file', 'myuserpassword_hash') }}" # mypassword
         harden_linux_deploy_user_home: /home/deployer
+        harden_linux_deploy_user_public_keys:
+          - "mykey.pub"
         harden_linux_sshd_settings:
           "^PasswordAuthentication": "PasswordAuthentication yes"
+          "^X11Forwarding": "X11Forwarding no"
         harden_linux_sysctl_settings_user:
           "net.ipv4.ip_forward": 1
           "net.ipv6.conf.default.forwarding": 1
