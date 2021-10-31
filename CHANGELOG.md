@@ -7,7 +7,7 @@ Changelog
 
 **v5.0.0**
 
-- Remove Ubunut 16.04 support
+- Remove Ubuntu 16.04 support
 
 **v4.1.0**
 
