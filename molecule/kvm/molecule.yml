@@ -52,11 +52,6 @@ provisioner:
   inventory:
     group_vars:
       all:
-        harden_linux_optional_packages:
-          - unattended-upgrades
-          - sudo
-          - net-tools
-          - mlocate
         harden_linux_root_password: "{{ lookup('file', 'myuserpassword_hash') }}" # mypassword
         harden_linux_deploy_user: deployer
         harden_linux_deploy_user_password: "{{ lookup('file', 'myuserpassword_hash') }}" # mypassword
@@ -96,6 +91,8 @@ provisioner:
         harden_linux_ntp: "systemd-timesyncd"
         harden_linux_ntp_settings:
           "^#NTP=": "NTP=ntp.ubuntu.com"
+        harden_linux_optional_packages:
+          - mlocate
       test-harden-linux-ubuntu2004-ntp:
         harden_linux_ntp: "ntp"
         harden_linux_ntp_settings:
@@ -112,6 +109,8 @@ provisioner:
           "^servers 3": "servers 3.debian.pool.ntp.org"
       test-harden-linux-arch-timesyncd:
         harden_linux_ntp: "systemd-timesyncd"
+        harden_linux_optional_packages:
+          - mlocate
 
 scenario:
   name: kvm
