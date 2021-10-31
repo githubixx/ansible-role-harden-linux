@@ -1,4 +1,9 @@
 ---
+- name: "Install sudo"
+  package:
+    pkg: "sudo"
+    state: present
+
 - name: Add deploy user
   user:
     name: "{{ harden_linux_deploy_user }}"
