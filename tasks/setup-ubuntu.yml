@@ -1,4 +1,9 @@
 ---
+- name: "Install package unattended-upgrades"
+  package:
+    pkg: "unattended-upgrades"
+    state: present
+
 - name: "({{ ansible_distribution }}) Update APT package cache"
   apt:
     update_cache: "{{ harden_linux_ubuntu_update_cache }}"
