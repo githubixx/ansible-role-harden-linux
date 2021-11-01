@@ -36,7 +36,7 @@
     block: |
       # hand off control for sshd to sshguard
       :sshguard - [0:0]
-      -A ufw-before-input -p tcp --dport 22 -j sshguard
+      -A ufw-before-input -p tcp --dport {{ harden_linux__ssh_port }} -j sshguard
   notify:
     - reload ufw
 
