@@ -231,14 +231,14 @@ harden_linux_ntp_settings:
 
 With `harden_linux_files_to_delete` a list of files can be specified that should be absent on the target host e.g.:
 
-```
+```yaml
 harden_linux_files_to_delete:
   - "/root/.pw"
 ```
 
-Also the package manager caching behaviour can be influenced. E.g. for Ubuntu:
+Also the package manager caching behavior can be influenced. E.g. for Ubuntu:
 
-```
+```yaml
 # Set to "false" if package cache should not be updated
 harden_linux_ubuntu_update_cache: true
 
@@ -248,7 +248,7 @@ harden_linux_ubuntu_cache_valid_time: 3600
 
 For Archlinux:
 
-```
+```yaml
 # Set to "false" if package cache should not be updated
 harden_linux_archlinux_update_cache: true
 ```
