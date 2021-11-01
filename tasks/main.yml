@@ -6,6 +6,8 @@
     - "{{ ansible_distribution|lower }}-{{ ansible_distribution_release }}.yml"
     - "{{ ansible_distribution|lower }}.yml"
     - "{{ ansible_os_family|lower }}.yml"
+  tags:
+    - always
 
 - name: OS specific setup
   include_tasks:
