@@ -1,6 +1,17 @@
 Changelog
 ---------
 
+**v6.0.0**
+
+This version contains a **breaking** change. Please read the changelog carefully:
+
+- **BREAKING**: `harden_linux_required_packages` variable was removed. Please use `harden_linux_optional_packages` instead now. Installation of packages `ufw`, `sshguard`, `sudo` and `unattended-upgrades` (last one Ubuntu only) are now installed in the tasks that setup the packages accordingly. So if you used `harden_linux_required_packages` to install additional packages you basically just need to rename that variable to `harden_linux_optional_packages` but you can remove `ufw`, `sshguard`, `sudo` and `unattended-upgrades` from the list and just keep all the packages you added manually.
+- **FEATURE**: Support Archlinux. Archlinux support doesn't contain "unattended upgrades" as it the case for Ubuntu.
+- **FEATURE**: add `harden_linux_files_to_delete` variable. This variable allows to specify a list of files which should be absent on the target host.
+- **FEATURE:** (Ubuntu only): add `harden_linux_ubuntu_update_cache` variable. Set to `false` if package cache should not be updated. Previously package cache was always updated.
+- **FEATURE:** (Ubuntu only): add `harden_linux_ubuntu_cache_valid_time` variable. Set package cache valid time (in seconds). Previously it was always `3600` seconds.
+- **FEATURE:** (Archlinux only): introduce `harden_linux_archlinux_update_cache` variable. Set to `false` if package cache should not be updated.
+
 **v5.1.0**
 
 - add `systemd-timesyncd` as additional option for `harden_linux_ntp`
