@@ -96,7 +96,7 @@ harden_linux_ufw_defaults_user:
 
 As already mentioned above this playbook will also combine `harden_linux_ufw_defaults` and `harden_linux_ufw_defaults_user` while the settings in `harden_linux_ufw_defaults_user` have preference.
 
-Next we can specify some firewall rules with `harden_linux_ufw_rules`. This is the default:
+Next we can specify some firewall rules with `harden_linux_ufw_rules`. The default is to allow SSH traffic on port `22` which uses protcol `tcp`:
 
 ```yaml
 harden_linux_ufw_rules:
@@ -105,7 +105,22 @@ harden_linux_ufw_rules:
     protocol: "tcp"
 ```
 
-You can add more settings for a rule like `interface`, `from_ip`, ... Please have a look at `tasks/main.yml` (search for "Apply firewall rules") for all possible settings.
+The following parameters are available with defaults (if any):
+
+```yaml
+rule (no default)
+interface (default '')
+direction (default 'in')
+from_ip (default 'any')
+to_ip (default 'any')
+from_port (default '')
+to_port (default '')
+protocol (default 'any')
+log (default 'false')
+delete (default 'false')
+```
+
+A [rule](https://docs.ansible.com/ansible/latest/collections/community/general/ufw_module.html#parameter-rule) can have the values `allow`, `deny`, `limit` and `reject`. [interface](https://docs.ansible.com/ansible/latest/collections/community/general/ufw_module.html#parameter-interface) specify interface for the rule. The [direction](https://docs.ansible.com/ansible/latest/collections/community/general/ufw_module.html#parameter-direction) (`in` or `out`) used for the `interface` depends on the value of direction. [from_ip](https://docs.ansible.com/ansible/latest/collections/community/general/ufw_module.html#parameter-from_ip) specifies the source IP address and [from_port](https://docs.ansible.com/ansible/latest/collections/community/general/ufw_module.html#parameter-from_port) the source port. [to_ip](https://docs.ansible.com/ansible/latest/collections/community/general/ufw_module.html#parameter-to_ip) specifies the destination IP address and [to_port](https://docs.ansible.com/ansible/latest/collections/community/general/ufw_module.html#parameter-to_port) the destination port. [protocol](https://docs.ansible.com/ansible/latest/collections/community/general/ufw_module.html#parameter-proto) is `any` by default. Possible values are `tcp`, `udp`, `ipv6`, `esp`, `ah`, `gre` and `igmp`. [log](https://docs.ansible.com/ansible/latest/collections/community/general/ufw_module.html#parameter-log) can either be `false` (default) or `true` and specifies if new connections that matched this rule should be logged. [delete](https://docs.ansible.com/ansible/latest/collections/community/general/ufw_module.html#parameter-delete) specifies if a rule should be deleted. This is important if a previously added rule should be removed. Just removing a rule from `harden_linux_ufw_rules` isn't enough! You must use `delete` to delete that rule.
 
 You can also allow hosts to communicate on specific networks (without port restrictions) e.g.:
 
