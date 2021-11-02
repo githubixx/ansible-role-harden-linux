@@ -9,6 +9,7 @@ This version contains a **breaking** change. Please read the changelog carefully
 - **BREAKING**: Min. supported Ansible version changed from `2.5` to >= `2.9`
 - **FEATURE**: Support Archlinux. Archlinux support doesn't contain "unattended upgrades" as it the case for Ubuntu.
 - **FEATURE**: add `harden_linux_files_to_delete` variable. This variable allows to specify a list of files which should be absent on the target host.
+- **FEATURE**: add `delete` parameter to UFW `rule`'s. Specifies if a rule should be deleted. This is important if a previously added rule should be removed. Just removing a rule from `harden_linux_ufw_rules` isn't enough! You must use `delete` to delete that rule.
 - **FEATURE:** (Ubuntu only): add `harden_linux_ubuntu_update_cache` variable. Set to `false` if package cache should not be updated. Previously package cache was always updated.
 - **FEATURE:** (Ubuntu only): add `harden_linux_ubuntu_cache_valid_time` variable. Set package cache valid time (in seconds). Previously it was always `3600` seconds.
 - **FEATURE:** (Archlinux only): introduce `harden_linux_archlinux_update_cache` variable. Set to `false` if package cache should not be updated.
