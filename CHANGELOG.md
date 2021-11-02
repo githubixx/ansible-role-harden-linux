@@ -67,7 +67,7 @@ This version contains a **breaking** change. Please read the changelog carefully
 - removed `common_ssh_port` (see `harden_linux_sshd_settings` instead)
 - all variables that started with `common_` are now starting with the prefix `harden_linux_`. Additionally ALL variables that the role uses are now prefixed with `harden_linux_`. Using a variable name prefix avoids potential collisions with other role/group variables.
 - introduced `harden_linux_deploy_user_uid` and `harden_linux_deploy_user_shell`
-- single settings in `harden_linux_sysctl_settings` can be overriden by specifing the key/value in `harden_linux_sysctl_settings_user` list (whole list needed to be replaced before this change)
+- single settings in `harden_linux_sysctl_settings` can be overridden by specifing the key/value in `harden_linux_sysctl_settings_user` list (whole list needed to be replaced before this change)
 - more documentation added to `defaults/main.yml` (please read it ;-) )
 - every setting in hosts `/etc/ssh/sshd_config` config file can now be replaced by using `harden_linux_sshd_settings_user` list. The defaults are specified in `harden_linux_sysctl_settings` and will be merged with `harden_linux_sysctl_settings_user` during run time.
 - added variable `harden_linux_sshguard_whitelist` for Sshguard whitelist
