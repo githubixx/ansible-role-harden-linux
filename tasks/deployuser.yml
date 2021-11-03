@@ -23,15 +23,6 @@
   tags:
     - user
 
-- name: Ensure deploy user is absent in /etc/sudoers
-  lineinfile:
-    dest: "/etc/sudoers"
-    regexp: "^{{ harden_linux_deploy_user }} ALL"
-    state: absent
-  tags:
-    - user
-    - sudo
-
 - name: "Ensure deploy user present in /etc/sudoers.d/{{ harden_linux_deploy_user }}"
   template:
     src: "etc/sudoers.d/deployuser.j2"
@@ -39,6 +30,15 @@
     owner: "root"
     group: "root"
     mode: "0400"
+  tags:
+    - user
+    - sudo
+
+- name: Ensure deploy user is absent in /etc/sudoers
+  lineinfile:
+    dest: "/etc/sudoers"
+    regexp: "^{{ harden_linux_deploy_user }} ALL"
+    state: absent
   tags:
     - user
     - sudo
