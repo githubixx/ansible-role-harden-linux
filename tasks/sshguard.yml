@@ -11,10 +11,14 @@
   register: harden_linux__ssh_port_tmp
   changed_when: false
   failed_when: false
+  tags:
+    - sshguard
 
 - name: Register sshd port fact
   set_fact:
     harden_linux__ssh_port: "{{ harden_linux__ssh_port_tmp.stdout.split()[1] | trim }}"
+  tags:
+    - sshguard
 
 - include_tasks:
     file: "{{ item }}"
