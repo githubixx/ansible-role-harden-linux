@@ -96,7 +96,7 @@ harden_linux_ufw_defaults_user:
 
 As already mentioned above this playbook will also combine `harden_linux_ufw_defaults` and `harden_linux_ufw_defaults_user` while the settings in `harden_linux_ufw_defaults_user` have preference.
 
-Next we can specify some firewall rules with `harden_linux_ufw_rules`. The default is to allow SSH traffic on port `22` which uses protcol `tcp`:
+Next we can specify some firewall rules with `harden_linux_ufw_rules`. The default is to allow SSH traffic on port `22` which uses protocol `tcp`:
 
 ```yaml
 harden_linux_ufw_rules:
