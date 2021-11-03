@@ -27,3 +27,9 @@
   loop: "{{ harden_linux_ntp_settings|flatten }}"
   when:
     - harden_linux_ntp_settings is defined
+
+- name: (ntp) Enable systemd service
+  service:
+    name: "ntp"
+    state: "started"
+    enabled: "yes"
