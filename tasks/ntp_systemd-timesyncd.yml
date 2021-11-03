@@ -31,7 +31,7 @@
         group: "root"
         force: "no"
 
-    - name: (systemd-timesyncd) Adjust timesyncd.conf
+    - name: (systemd-timesyncd) Adjust timesyncd systemd drop-in file
       lineinfile:
         dest: "/etc/systemd/timesyncd.conf.d/99-harden-linux-timesyncd.conf"
         regexp: "{{ item }}"
