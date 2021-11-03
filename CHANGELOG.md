@@ -1,13 +1,27 @@
 Changelog
 ---------
 
+**v6.0.0**
+
+This version contains a few **breaking** changes. Please read the changelog carefully:
+
+- **BREAKING**: `harden_linux_required_packages` variable was removed. Please use `harden_linux_optional_packages` instead now. Installation of packages `ufw`, `sshguard`, `sudo` and `unattended-upgrades` (last one Ubuntu only) are now installed in the tasks that setup the packages accordingly. So if you used `harden_linux_required_packages` to install additional packages you basically just need to rename that variable to `harden_linux_optional_packages` but you can remove `ufw`, `sshguard`, `sudo` and `unattended-upgrades` from the list and just keep all the packages you added manually.
+- **BREAKING**: The deploy user specified in `harden_linux_deploy_user` will no longer be added to `/etc/sudoers` directly. Instead a file `/etc/sudoers.d/{{ harden_linux_deploy_user }}` will be created. After that file is created the old user entry will be removed from `/etc/sudoers`.
+- **BREAKING**: Min. supported Ansible version changed from `2.5` to >= `2.9`
+- **FEATURE**: Support Archlinux. Archlinux support doesn't contain "unattended upgrades" as it the case for Ubuntu.
+- **FEATURE**: add `harden_linux_files_to_delete` variable. This variable allows to specify a list of files which should be absent on the target host.
+- **FEATURE**: add `delete` parameter to UFW `rule`'s. Specifies if a rule should be deleted. This is important if a previously added rule should be removed. Just removing a rule from `harden_linux_ufw_rules` isn't enough! You must use `delete` to delete that rule.
+- **FEATURE:** (Ubuntu only): add `harden_linux_ubuntu_update_cache` variable. Set to `false` if package cache should not be updated. Previously package cache was always updated.
+- **FEATURE:** (Ubuntu only): add `harden_linux_ubuntu_cache_valid_time` variable. Set package cache valid time (in seconds). Previously it was always `3600` seconds.
+- **FEATURE:** (Archlinux only): introduce `harden_linux_archlinux_update_cache` variable. Set to `false` if package cache should not be updated.
+
 **v5.1.0**
 
 - add `systemd-timesyncd` as additional option for `harden_linux_ntp`
 
 **v5.0.0**
 
-- Remove Ubunut 16.04 support
+- Remove Ubuntu 16.04 support
 
 **v4.1.0**
 
@@ -55,7 +69,7 @@ Changelog
 - removed `common_ssh_port` (see `harden_linux_sshd_settings` instead)
 - all variables that started with `common_` are now starting with the prefix `harden_linux_`. Additionally ALL variables that the role uses are now prefixed with `harden_linux_`. Using a variable name prefix avoids potential collisions with other role/group variables.
 - introduced `harden_linux_deploy_user_uid` and `harden_linux_deploy_user_shell`
-- single settings in `harden_linux_sysctl_settings` can be overriden by specifing the key/value in `harden_linux_sysctl_settings_user` list (whole list needed to be replaced before this change)
+- single settings in `harden_linux_sysctl_settings` can be overridden by specifing the key/value in `harden_linux_sysctl_settings_user` list (whole list needed to be replaced before this change)
 - more documentation added to `defaults/main.yml` (please read it ;-) )
 - every setting in hosts `/etc/ssh/sshd_config` config file can now be replaced by using `harden_linux_sshd_settings_user` list. The defaults are specified in `harden_linux_sysctl_settings` and will be merged with `harden_linux_sysctl_settings_user` during run time.
 - added variable `harden_linux_sshguard_whitelist` for Sshguard whitelist

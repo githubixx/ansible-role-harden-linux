@@ -1,5 +1,4 @@
 ---
-
 - name: reload ufw
   ufw:
     state: reloaded
@@ -7,7 +6,24 @@
 - name: restart ssh
   service:
     name: ssh
-    state: restarted
+    state: "{{ item }}"
+  loop:
+    - stopped
+    - started
+  when:
+    - not ansible_distribution|lower == 'archlinux'
+  listen: "restart ssh"
+
+- name: restart sshd
+  service:
+    name: sshd
+    state: "{{ item }}"
+  loop:
+    - stopped
+    - started
+  when:
+    - ansible_distribution|lower == 'archlinux'
+  listen: "restart ssh"
 
 - name: restart ntpd
   service:
@@ -17,4 +33,9 @@
 - name: restart systemd-timesyncd
   service:
     name: systemd-timesyncd
+    state: restarted
+
+- name: restart sshguard
+  service:
+    name: sshguard
     state: restarted

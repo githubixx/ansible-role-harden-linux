@@ -7,12 +7,9 @@ This Ansible role was mainly created for my blog series [Kubernetes the not so h
 - Add a regular/deploy user used for administration (e.g. for Ansible or login via SSH)
 - Adjust APT update intervals
 - Setup UFW firewall and allow only SSH access by default (add more rules/allowed networks if you like)
-- Adjust security related sysctl settings (/proc filesystem)
-- Change sshd default port (if requested)
-- Disable sshd password authentication
-- Disable sshd root login
-- Disable sshd PermitTunnel
-- Install Sshguard and adjust whitelist
+- Adjust security related sysctl settings
+- Adjust sshd settings e.g disable sshd password authentication, disable sshd root login and disable sshd PermitTunnel
+- Install sshguard and adjust whitelist
 - Optional: Install/configure Network Time Synchronization (NTP) e.g. `openntpd`/`ntp`/`systemd-timesyncd`
 
 Versions
@@ -46,18 +43,15 @@ With `harden_linux_root_password` and `harden_linux_deploy_user_password` we spe
 ansible localhost -m debug -a "msg={{ 'mypassword' | password_hash('sha512', 'mysecretsalt') }}"
 ```
 
-`harden_linux_deploy_user` specifies the user we want to use to login at the remote host. As already mentioned the `harden-linux` role will disable root user login via SSH for a good reason. So we need a different user. This user will get "sudo" permission which we need for Ansible (and yourself of course) to do it's work.
+`harden_linux_deploy_user` specifies the user we want to use to login at the remote host. As already mentioned the `harden-linux` role will disable root user login via SSH for a good reason. So a different user is needed. This user will get "sudo" permission which is need for Ansible (and/or yourself of course) to do it's work.
 
 `harden_linux_deploy_user_public_keys` specifies a list of public SSH key files you want to add to `$HOME/.ssh/authorized_keys` of the deploy user on the remote host. If you specify `/home/deploy/.ssh/id_rsa.pub` e.g. as a value here the content of that **local** file will be added to `$HOME/.ssh/authorized_keys` of the deploy user on the remote host.
 
-The following variables below have defaults. So you only need to change them if you need another value for the variable. `harden_linux_required_packages` specifies the packages this playbook requires to work. You can extend the list but don't remove the packages listed:
+The following variables below have defaults. So you only need to change them if you need another value for the variable. `harden_linux_optional_packages` (before version `v6.0.0` of this role this variable was called `harden_linux_required_packages`) specifies additional/optional packages to install on the remote host e.g. (by default this variable is not specified):
 
 ```yaml
-harden_linux_required_packages:
-  - ufw
-  - sshguard
-  - unattended-upgrades
-  - sudo
+harden_linux_optional_packages:
+  - vim
 ```
 
 The role changes some `sshd` settings by default:
@@ -70,16 +64,16 @@ harden_linux_sshd_settings:
   "^Port ": "Port 22"                                     # Set sshd port
 ```
 
-Personally I always change the default SSH port as lot of brute force attacks taking place against this port. So if you want to change the port setting for example you can do so:
+Personally I always change the default SSH port as lot of brute force attacks taking place against this port (but of course a port scanner will still be able to figure this out quickly). So if you want to change the port setting you can do so e.g.:
 
 ```yaml
 harden_linux_sshd_settings_user:
   "^Port ": "Port 22222"
 ```
 
-(Please notice the whitespace after "Port"!). The playbook will combine `harden_linux_sshd_settings` and `harden_linux_sshd_settings_user` while the settings in `harden_linux_sshd_settings_user` have preference which means it will override the `^Port ` setting/key in `harden_linux_sshd_settings`. As you may have noticed all the key's in `harden_linux_sshd_settings` and `harden_linux_sshd_settings_user` begin with `^`. That's because it is a regular expression (regex). One of playbook task's will search for a line in `/etc/ssh/sshd_config` e.g. `^Port ` (while the `^` means "a line starting with ...") and replaces the line (if found) with e.g `Port 22222`. This way makes the playbook very flexible for adjusting settings in `sshd_config` (you can basically replace every setting). You'll see this pattern for other tasks too so everything mentioned here holds true in such cases.
+(Please notice the whitespace after `^Port`!). The playbook will combine `harden_linux_sshd_settings` and `harden_linux_sshd_settings_user` while the settings in `harden_linux_sshd_settings_user` have preference which means it will override the `^Port ` setting/key in `harden_linux_sshd_settings`. As you may have noticed all the key's in `harden_linux_sshd_settings` and `harden_linux_sshd_settings_user` begin with `^`. That's because it is a regular expression (regex). One of playbook task's will search for a line in `/etc/ssh/sshd_config` e.g. `^Port ` (while the `^` means "a line starting with ...") and replaces the line (if found) with e.g `Port 22222`. This way makes the playbook very flexible for adjusting settings in `sshd_config` (you can basically replace every setting). You'll see this pattern for other tasks too. So everything mentioned here holds true in such cases.
 
-Next we have some defaults for our firewall/iptables:
+Next some default settings for firewall/iptables. Firewall/iptables rules and settings are managed by [UFW](https://wiki.ubuntu.com/UncomplicatedFirewall):
 
 ```yaml
 harden_linux_ufw_defaults:
@@ -102,7 +96,7 @@ harden_linux_ufw_defaults_user:
 
 As already mentioned above this playbook will also combine `harden_linux_ufw_defaults` and `harden_linux_ufw_defaults_user` while the settings in `harden_linux_ufw_defaults_user` have preference.
 
-Next we can specify some firewall rules with `harden_linux_ufw_rules`. This is the default:
+Next we can specify some firewall rules with `harden_linux_ufw_rules`. The default is to allow SSH traffic on port `22` which uses protocol `tcp`:
 
 ```yaml
 harden_linux_ufw_rules:
@@ -111,7 +105,22 @@ harden_linux_ufw_rules:
     protocol: "tcp"
 ```
 
-You can add more settings for a rule like `interface`, `from_ip`, ... Please have a look at `tasks/main.yml` (search for "Apply firewall rules") for all possible settings.
+The following parameters are available with defaults (if any):
+
+```yaml
+rule (no default)
+interface (default '')
+direction (default 'in')
+from_ip (default 'any')
+to_ip (default 'any')
+from_port (default '')
+to_port (default '')
+protocol (default 'any')
+log (default 'false')
+delete (default 'false')
+```
+
+A [rule](https://docs.ansible.com/ansible/latest/collections/community/general/ufw_module.html#parameter-rule) can have the values `allow`, `deny`, `limit` and `reject`. [interface](https://docs.ansible.com/ansible/latest/collections/community/general/ufw_module.html#parameter-interface) specify interface for the rule. The [direction](https://docs.ansible.com/ansible/latest/collections/community/general/ufw_module.html#parameter-direction) (`in` or `out`) used for the `interface` depends on the value of direction. [from_ip](https://docs.ansible.com/ansible/latest/collections/community/general/ufw_module.html#parameter-from_ip) specifies the source IP address and [from_port](https://docs.ansible.com/ansible/latest/collections/community/general/ufw_module.html#parameter-from_port) the source port. [to_ip](https://docs.ansible.com/ansible/latest/collections/community/general/ufw_module.html#parameter-to_ip) specifies the destination IP address and [to_port](https://docs.ansible.com/ansible/latest/collections/community/general/ufw_module.html#parameter-to_port) the destination port. [protocol](https://docs.ansible.com/ansible/latest/collections/community/general/ufw_module.html#parameter-proto) is `any` by default. Possible values are `tcp`, `udp`, `ipv6`, `esp`, `ah`, `gre` and `igmp`. [log](https://docs.ansible.com/ansible/latest/collections/community/general/ufw_module.html#parameter-log) can either be `false` (default) or `true` and specifies if new connections that matched this rule should be logged. [delete](https://docs.ansible.com/ansible/latest/collections/community/general/ufw_module.html#parameter-delete) specifies if a rule should be deleted. This is important if a previously added rule should be removed. Just removing a rule from `harden_linux_ufw_rules` isn't enough! You must use `delete` to delete that rule.
 
 You can also allow hosts to communicate on specific networks (without port restrictions) e.g.:
 
@@ -174,7 +183,7 @@ harden_linux_ufw_logging: 'on'
 
 Possible values are `on`,`off`,`low`,`medium`,`high` and `full`.
 
-Next we've the Sshguard settings. Sshguard protects from brute force attacks against SSH. To avoid locking out yourself for a while you can add IPs or IP ranges to a whitelist. By default it's basically only "localhost":
+Next we've the "sshguard" settings. "sshguard" protects from brute force attacks against SSH. To avoid locking out yourself for a while you can add IPs or IP ranges to a whitelist. By default it's basically only "localhost":
 
 ```yaml
 harden_linux_sshguard_whitelist:
@@ -182,9 +191,7 @@ harden_linux_sshguard_whitelist:
   - "::1/128"
 ```
 
-And finally a NTP package can be installed/configured. This is optional. By default `openntpd` is used. You can als use `ntp` package. But `openntpd` has the advantage that it doesn't listen on any ports by default. If you just want to keep the hosts clock in sync this is absolutely sufficient. Having the same time on all your hosts is critical for some services. E.g. for certificate validation, for etcd, databases, ... If you remove this variable no NTP package will be installed and you're on your own:
-
-And finally a NTP package can be installed/configured. This is optional but having the same time on all your hosts is critical for some services. E.g. for certificate validation, for etcd, databases, cryptography, ... By default `harden_linux_ntp` variable is commented so no NTP service will be installed.
+Also NTP packages can be installed/configured. This is optional. By default I'd recommend to use `systemd-timesyncd`. You can also use `ntp` package. But `openntpd` and `systemd-timesyncd` have the advantage that they don't listen on any ports by default. If you just want to keep the hosts clock in sync this is absolutely sufficient. Having the same time on all your hosts is critical for some services. E.g. for certificate validation, for etcd, databases, cryptography, and so on.
 
 Valid options for `harden_linux_ntp` are:
 
@@ -192,7 +199,7 @@ Valid options for `harden_linux_ntp` are:
 - ntp
 - systemd-timesyncd
 
-`openntpd` and `systemd-timesyncd` have the advantage that they don't listen on any ports by default. If you just want to keep the hosts clock in sync one of those two should do the job. `systemd-timesyncd` is already installed if a distribution uses `systemd` (which is basically true for most Linux OSes nowadays). So no additional packages are needed in this case. To enable `openntpd` set `harden_linux_ntp` accordingly e.g.:
+`openntpd` and `systemd-timesyncd` have the advantage that they don't listen on any ports by default as already mentioned. If you just want to keep the hosts clock in sync one of those two should do the job. `systemd-timesyncd` is already installed if a distribution uses `systemd` (which is basically true for most Linux OSes nowadays). So no additional packages are needed in this case. To enable `openntpd` set `harden_linux_ntp` accordingly e.g.:
 
 ```yaml
 harden_linux_ntp: "openntpd"
@@ -235,6 +242,30 @@ For Archlinux:
 ```yaml
 harden_linux_ntp_settings:
   "^#NTP=": "NTP=0.arch.pool.ntp.org 1.arch.pool.ntp.org 2.arch.pool.ntp.org 3.arch.pool.ntp.org"
+```
+
+With `harden_linux_files_to_delete` a list of files can be specified that should be absent on the target host e.g.:
+
+```yaml
+harden_linux_files_to_delete:
+  - "/root/.pw"
+```
+
+Also the package manager caching behavior can be influenced. E.g. for Ubuntu:
+
+```yaml
+# Set to "false" if package cache should not be updated
+harden_linux_ubuntu_update_cache: true
+
+# Set package cache valid time
+harden_linux_ubuntu_cache_valid_time: 3600
+```
+
+For Archlinux:
+
+```yaml
+# Set to "false" if package cache should not be updated
+harden_linux_archlinux_update_cache: true
 ```
 
 Example Playbook

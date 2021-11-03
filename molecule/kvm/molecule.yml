@@ -33,6 +33,13 @@ platforms:
         network_name: private_network
         type: static
         ip: 192.168.10.30
+  - name: test-harden-linux-arch-timesyncd
+    box: archlinux/archlinux
+    interfaces:
+      - auto_config: true
+        network_name: private_network
+        type: static
+        ip: 192.168.10.40
 
 provisioner:
   name: ansible
@@ -45,19 +52,15 @@ provisioner:
   inventory:
     group_vars:
       all:
-        harden_linux_required_packages:
-          - ufw
-          - sshguard
-          - unattended-upgrades
-          - sudo
-          - net-tools
-          - mlocate
         harden_linux_root_password: "{{ lookup('file', 'myuserpassword_hash') }}" # mypassword
         harden_linux_deploy_user: deployer
         harden_linux_deploy_user_password: "{{ lookup('file', 'myuserpassword_hash') }}" # mypassword
         harden_linux_deploy_user_home: /home/deployer
+        harden_linux_deploy_user_public_keys:
+          - "mykey.pub"
         harden_linux_sshd_settings:
           "^PasswordAuthentication": "PasswordAuthentication yes"
+          "^X11Forwarding": "X11Forwarding no"
         harden_linux_sysctl_settings_user:
           "net.ipv4.ip_forward": 1
           "net.ipv6.conf.default.forwarding": 1
@@ -88,6 +91,8 @@ provisioner:
         harden_linux_ntp: "systemd-timesyncd"
         harden_linux_ntp_settings:
           "^#NTP=": "NTP=ntp.ubuntu.com"
+        harden_linux_optional_packages:
+          - mlocate
       test-harden-linux-ubuntu2004-ntp:
         harden_linux_ntp: "ntp"
         harden_linux_ntp_settings:
@@ -102,6 +107,10 @@ provisioner:
           "^servers 1": "servers 1.debian.pool.ntp.org"
           "^servers 2": "servers 2.debian.pool.ntp.org"
           "^servers 3": "servers 3.debian.pool.ntp.org"
+      test-harden-linux-arch-timesyncd:
+        harden_linux_ntp: "systemd-timesyncd"
+        harden_linux_optional_packages:
+          - mlocate
 
 scenario:
   name: kvm

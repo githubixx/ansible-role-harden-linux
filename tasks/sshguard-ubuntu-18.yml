@@ -1,0 +1,14 @@
+---
+- name: Update sshguard whitelist file
+  lineinfile:
+    dest: "{{ harden_linux_sshguard_whitelist_file }}"
+    regexp: "^{{ whitelist_entry }}"
+    line: "{{ whitelist_entry }}"
+    state: present
+  loop: "{{ harden_linux_sshguard_whitelist }}"
+  loop_control:
+    loop_var: whitelist_entry
+  notify:
+    - restart sshguard
+  tags:
+    - sshguard

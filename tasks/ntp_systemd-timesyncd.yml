@@ -8,7 +8,7 @@
     state: "stopped"
     enabled: "no"
   when: ansible_facts.services[item + '.service'] is defined
-  with_items:
+  loop:
     - ntp
     - openntpd
 
@@ -31,15 +31,14 @@
         group: "root"
         force: "no"
 
-    - name: (systemd-timesyncd) Adjust timesyncd.conf
+    - name: (systemd-timesyncd) Adjust timesyncd systemd drop-in file
       lineinfile:
         dest: "/etc/systemd/timesyncd.conf.d/99-harden-linux-timesyncd.conf"
         regexp: "{{ item }}"
         line: "{{ harden_linux_ntp_settings[item] }}"
         state: "present"
       notify: "restart systemd-timesyncd"
-      with_items:
-        - "{{ harden_linux_ntp_settings | list }}"
+      loop: "{{ harden_linux_ntp_settings | flatten }}"
   when:
     - harden_linux_ntp_settings is defined
 

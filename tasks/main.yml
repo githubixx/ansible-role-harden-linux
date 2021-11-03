@@ -1,40 +1,46 @@
-- name: Delete root pw file /root/.pw (if present)
+- name: Load required variables based on the OS type
+  include_vars: "{{ item }}"
+  with_first_found:
+    - "{{ ansible_distribution|lower }}-{{ ansible_distribution_major_version }}.yml"
+    - "{{ ansible_distribution|lower }}-{{ ansible_distribution_version }}.yml"
+    - "{{ ansible_distribution|lower }}-{{ ansible_distribution_release }}.yml"
+    - "{{ ansible_distribution|lower }}.yml"
+    - "{{ ansible_os_family|lower }}.yml"
+  tags:
+    - always
+
+- name: OS specific setup
+  include_tasks:
+    file: "{{ item }}"
+    apply:
+      tags:
+        - install
+  with_first_found:
+    - "setup-{{ ansible_distribution|lower }}-{{ ansible_distribution_major_version }}.yml"
+    - "setup-{{ ansible_distribution|lower }}-{{ ansible_distribution_version }}.yml"
+    - "setup-{{ ansible_distribution|lower }}-{{ ansible_distribution_release }}.yml"
+    - "setup-{{ ansible_distribution|lower }}.yml"
+    - "setup-{{ ansible_os_family|lower }}.yml"
+  tags:
+    - install
+
+- name: "Install optional packages"
+  package:
+    pkg: "{{ harden_linux_optional_packages }}"
+    state: present
+  when: harden_linux_optional_packages is defined
+  retries: 2
+  delay: 5
+  tags:
+    - install
+
+- name: Ensure files absent
   file:
-    path: /root/.pw
+    path: "{{ file_to_delete }}"
     state: absent
-
-- name: Update APT package cache
-  apt:
-    update_cache: true
-    cache_valid_time: 3600
-  retries: 2
-  delay: 5
-  tags:
-    - apt
-
-- name: Install aptitude
-  apt:
-    pkg: aptitude
-    state: present
-  retries: 2
-  delay: 5
-  tags:
-    - apt
-
-- name: Upgrade APT to the latest packages
-  apt:
-    upgrade: safe
-  retries: 2
-  delay: 5
-
-- name: Install required packages
-  apt:
-    state: present
-    pkg: "{{ harden_linux_required_packages }}"
-  retries: 2
-  delay: 5
-  tags:
-    - ufw
+  loop: "{{ harden_linux_files_to_delete }}"
+  loop_control:
+    loop_var: file_to_delete
 
 - name: Setup NTP related services
   include_tasks:
@@ -44,46 +50,19 @@
         - ntpd
   when:
     - harden_linux_ntp is defined
-
-- name: Add deploy user
-  user:
-    name: "{{ harden_linux_deploy_user }}"
-    password: "{{ harden_linux_deploy_user_password }}"
-    uid: "{{ harden_linux_deploy_user_uid }}"
-    shell: "{{ harden_linux_deploy_user_shell }}"
-    home: "{{ harden_linux_deploy_user_home }}"
   tags:
-    - user
+    - ntpd
 
-- name: Add authorized keys for deploy user
-  authorized_key:
-    user: "{{ harden_linux_deploy_user }}"
-    key: "{{ lookup('file', item) }}"
-  with_items:
-    - "{{ harden_linux_deploy_user_public_keys }}"
-  when: harden_linux_deploy_user_public_keys is defined
-  tags:
-    - user
-
-- name: Add deploy user to sudoers
-  lineinfile:
-    dest: /etc/sudoers
-    regexp: "{{ harden_linux_deploy_user }} ALL"
-    line: "{{ harden_linux_deploy_user }} ALL=(ALL) NOPASSWD:ALL"
-    state: present
+- name: Setup deploy user
+  include_tasks:
+    file: "deployuser.yml"
+    apply:
+      tags:
+        - user
+        - sudo
   tags:
     - user
     - sudo
-
-- name: Adjust APT update intervals
-  copy:
-    src: etc/apt/apt.conf.d/10periodic
-    dest: /etc/apt/apt.conf.d/10periodic
-    owner: root
-    group: root
-    mode: 0644
-  tags:
-    - apt
 
 - name: Combine harden_linux_sshd_settings and harden_linux_sshd_settings_user (if defined)
   set_fact:
@@ -98,8 +77,7 @@
     line: "{{ harden_linux_sshd_settings[item] }}"
     state: "present"
   notify: "restart ssh"
-  with_items:
-    - "{{ harden_linux_sshd_settings | list }}"
+  loop: "{{ harden_linux_sshd_settings|flatten }}"
   tags:
     - ssh
 
@@ -114,77 +92,27 @@
     name: "{{ item }}"
     value: "{{ harden_linux_sysctl_settings[item] }}"
     sysctl_set: true
-  with_items:
-    - "{{ harden_linux_sysctl_settings | list }}"
+  loop: "{{ harden_linux_sysctl_settings|flatten }}"
   tags:
     - sysctl
 
-- name: Combine harden_linux_ufw_defaults and harden_linux_ufw_defaults_user (if defined)
-  set_fact:
-    harden_linux_ufw_defaults: "{{ harden_linux_ufw_defaults | combine(harden_linux_ufw_defaults_user|default({})) }}"
+- name: Setup UFW
+  include_tasks:
+    file: "ufw.yml"
+    apply:
+      tags:
+        - ufw
   tags:
     - ufw
 
-- name: UFW - Configure defaults
-  lineinfile:
-    dest: /etc/default/ufw
-    regexp: "{{ item }}"
-    line: "{{ harden_linux_ufw_defaults[item] }}"
-    state: present
-  notify: "reload ufw"
-  with_items:
-    - "{{ harden_linux_ufw_defaults | list }}"
-  tags:
-    - ufw
-
-- name: UFW - Apply firewall rules
-  ufw:
-    rule: "{{ item.rule }}"
-    interface: "{{ item.interface | default('') }}"
-    direction: "{{ item.direction | default('in') }}"
-    from_ip: "{{ item.from_ip | default('any') }}"
-    to_ip: "{{ item.to_ip | default('any') }}"
-    from_port: "{{ item.from_port | default('') }}"
-    to_port: "{{ item.to_port | default('') }}"
-    protocol: "{{ item.protocol | default('any') }}"
-    log: "{{ item.log | default(False) }}"
-  with_items: "{{ harden_linux_ufw_rules }}"
-  tags:
-    - ufw
-    - ufwrules
-
-- name: UFW - Allow configured networks to communicate
-  ufw:
-    rule: allow
-    src: "{{ item }}"
-  with_items:
-    - "{{ harden_linux_ufw_allow_networks }}"
-  when: harden_linux_ufw_allow_networks is defined
-  tags:
-    - ufw
-
-- name: UFW - Setup logging
-  ufw:
-    logging: "{{ harden_linux_ufw_logging }}"
-  tags:
-    - ufw
-
-- name: Update Sshguard white list
-  lineinfile:
-    dest: /etc/sshguard/whitelist
-    regexp: "^{{ item }}"
-    line: "{{ item }}"
-    state: present
-  with_items:
-    - "{{ harden_linux_sshguard_whitelist }}"
+- name: Setup sshguard
+  include_tasks:
+    file: "sshguard.yml"
+    apply:
+      tags:
+        - sshguard
   tags:
     - sshguard
-
-- name: UFW - Enable firewall/iptables
-  ufw:
-    state: enabled
-  tags:
-    - ufw
 
 - name: Change root password
   user:

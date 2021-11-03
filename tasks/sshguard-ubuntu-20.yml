@@ -1,0 +1,26 @@
+---
+- name: Update UFW before.rules
+  blockinfile:
+    path: "/etc/ufw/before.rules"
+    marker: "# {mark} ANSIBLE MANAGED BLOCK"
+    insertafter: "^-A ufw-before-output -o lo -j ACCEPT"
+    block: |
+      # hand off control for sshd to sshguard
+      :sshguard - [0:0]
+      -A ufw-before-input -p tcp --dport {{ harden_linux__ssh_port }} -j sshguard
+  notify:
+    - reload ufw
+
+- name: Update sshguard whitelist file
+  lineinfile:
+    dest: "{{ harden_linux_sshguard_whitelist_file }}"
+    regexp: "^{{ whitelist_entry }}"
+    line: "{{ whitelist_entry }}"
+    state: present
+  loop: "{{ harden_linux_sshguard_whitelist }}"
+  loop_control:
+    loop_var: whitelist_entry
+  notify:
+    - restart sshguard
+  tags:
+    - sshguard

@@ -1,0 +1,61 @@
+---
+- name: Add WHITELIST option to sshguard.conf
+  lineinfile:
+    dest: "/etc/sshguard.conf"
+    regexp: "^WHITELIST_FILE="
+    line: "WHITELIST_FILE={{ harden_linux_sshguard_whitelist_file }}"
+    state: present
+  notify:
+    - restart sshguard
+  tags:
+    - sshguard
+
+- name: Ensure sshguard whitelist directory
+  file:
+    path: "{{ harden_linux_sshguard_whitelist_directory }}"
+    state: "directory"
+    mode: "0755"
+    owner: "root"
+    group: "root"
+  tags:
+    - sshguard
+
+- name: Copy sshguard.service file
+  copy:
+    src: "etc/systemd/system/sshguard.service.archlinux"
+    dest: "/etc/systemd/system/sshguard.service"
+    mode: "0644"
+    owner: "root"
+    group: "root"
+  tags:
+    - sshguard
+
+- name: Update UFW before.rules
+  blockinfile:
+    path: "/etc/ufw/before.rules"
+    marker: "# {mark} ANSIBLE MANAGED BLOCK"
+    insertafter: "^-A ufw-before-output -o lo -j ACCEPT"
+    block: |
+      # hand off control for sshd to sshguard
+      :sshguard - [0:0]
+      -A ufw-before-input -p tcp --dport {{ harden_linux__ssh_port }} -j sshguard
+  notify:
+    - reload ufw
+  tags:
+    - sshguard
+
+- name: Update sshguard whitelist file
+  lineinfile:
+    dest: "{{ harden_linux_sshguard_whitelist_file }}"
+    regexp: "^{{ whitelist_entry }}"
+    line: "{{ whitelist_entry }}"
+    create: true
+    mode: 0755
+    state: present
+  loop: "{{ harden_linux_sshguard_whitelist }}"
+  loop_control:
+    loop_var: whitelist_entry
+  notify:
+    - restart sshguard
+  tags:
+    - sshguard

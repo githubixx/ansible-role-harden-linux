@@ -2,10 +2,11 @@ galaxy_info:
   author: Robert Wimmer
   description: Ansible role for hardening Linux
   license: GPLv3
-  min_ansible_version: 2.5
+  min_ansible_version: 2.9
   role_name: harden-linux
   namespace: githubixx
   platforms:
+    - name: ArchLinux
     - name: Ubuntu
       versions:
         - bionic
@@ -18,3 +19,4 @@ galaxy_info:
     - ssh
     - harden
     - ufw
+    - sshguard

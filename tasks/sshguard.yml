@@ -1,0 +1,35 @@
+---
+- name: Install sshguard package
+  package:
+    name: sshguard
+    state: present
+  tags:
+    - sshguard
+
+- name: Register sshd port setting in ssd_config
+  shell: "grep -E '^Port ' /etc/ssh/sshd_config || echo 'Port 22'"
+  register: harden_linux__ssh_port_tmp
+  changed_when: false
+  failed_when: false
+  tags:
+    - sshguard
+
+- name: Register sshd port fact
+  set_fact:
+    harden_linux__ssh_port: "{{ harden_linux__ssh_port_tmp.stdout.split()[1] | trim }}"
+  tags:
+    - sshguard
+
+- include_tasks:
+    file: "{{ item }}"
+    apply:
+      tags:
+        - wg-install
+  with_first_found:
+    - "sshguard-{{ ansible_distribution|lower }}-{{ ansible_distribution_major_version }}.yml"
+    - "sshguard-{{ ansible_distribution|lower }}-{{ ansible_distribution_version }}.yml"
+    - "sshguard-{{ ansible_distribution|lower }}-{{ ansible_distribution_release }}.yml"
+    - "sshguard-{{ ansible_distribution|lower }}.yml"
+    - "sshguard-{{ ansible_os_family|lower }}.yml"
+  tags:
+    - sshguard

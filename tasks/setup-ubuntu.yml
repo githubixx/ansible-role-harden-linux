@@ -1,0 +1,32 @@
+---
+- name: "Install package unattended-upgrades"
+  package:
+    pkg: "unattended-upgrades"
+    state: present
+
+- name: "({{ ansible_distribution }}) Update APT package cache"
+  apt:
+    update_cache: "{{ harden_linux_ubuntu_update_cache }}"
+    cache_valid_time: "{{ harden_linux_ubuntu_cache_valid_time }}"
+  retries: 2
+  delay: 5
+  tags:
+    - apt
+
+- name: "({{ ansible_distribution }}) Upgrade APT to the latest packages"
+  apt:
+    upgrade: safe
+  retries: 2
+  delay: 5
+  tags:
+    - apt
+
+- name: "({{ ansible_distribution }}) Adjust APT update intervals"
+  copy:
+    src: etc/apt/apt.conf.d/10periodic
+    dest: /etc/apt/apt.conf.d/10periodic
+    owner: root
+    group: root
+    mode: 0644
+  tags:
+    - apt
