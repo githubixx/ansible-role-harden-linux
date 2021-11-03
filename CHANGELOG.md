@@ -3,9 +3,10 @@ Changelog
 
 **v6.0.0**
 
-This version contains a **breaking** change. Please read the changelog carefully:
+This version contains a few **breaking** changes. Please read the changelog carefully:
 
 - **BREAKING**: `harden_linux_required_packages` variable was removed. Please use `harden_linux_optional_packages` instead now. Installation of packages `ufw`, `sshguard`, `sudo` and `unattended-upgrades` (last one Ubuntu only) are now installed in the tasks that setup the packages accordingly. So if you used `harden_linux_required_packages` to install additional packages you basically just need to rename that variable to `harden_linux_optional_packages` but you can remove `ufw`, `sshguard`, `sudo` and `unattended-upgrades` from the list and just keep all the packages you added manually.
+- **BREAKING**: The deploy user specified in `harden_linux_deploy_user` will no longer be added to `/etc/sudoers` directly. Instead a file `/etc/sudoers.d/{{ harden_linux_deploy_user }}` will be created. After that file is created the old user entry will be removed from `/etc/sudoers`.
 - **BREAKING**: Min. supported Ansible version changed from `2.5` to >= `2.9`
 - **FEATURE**: Support Archlinux. Archlinux support doesn't contain "unattended upgrades" as it the case for Ubuntu.
 - **FEATURE**: add `harden_linux_files_to_delete` variable. This variable allows to specify a list of files which should be absent on the target host.
