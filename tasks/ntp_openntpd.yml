@@ -19,7 +19,7 @@
 
 - name: (openntpd) Adjust ntpd.conf settings
   lineinfile:
-    dest: "/etc/openntpd/ntpd.conf"
+    dest: "{{ harden_linux_openntpd_directory }}/ntpd.conf"
     regexp: "{{ item }}"
     line: "{{ harden_linux_ntp_settings[item] }}"
     state: "present"
@@ -27,3 +27,9 @@
   loop: "{{ harden_linux_ntp_settings|flatten }}"
   when:
     - harden_linux_ntp_settings is defined
+
+- name: (openntp) Enable systemd service
+  service:
+    name: "openntpd"
+    state: "started"
+    enabled: "yes"
