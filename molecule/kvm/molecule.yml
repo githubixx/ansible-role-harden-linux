@@ -40,6 +40,13 @@ platforms:
         network_name: private_network
         type: static
         ip: 192.168.10.40
+  - name: test-harden-linux-ubuntu2204-timesyncd
+    box: alvistack/ubuntu-22.04
+    interfaces:
+      - auto_config: true
+        network_name: private_network
+        type: static
+        ip: 192.168.10.50
 
 provisioner:
   name: ansible
@@ -109,6 +116,12 @@ provisioner:
           "^servers 3": "servers 3.debian.pool.ntp.org"
       test-harden-linux-arch-timesyncd:
         harden_linux_ntp: "systemd-timesyncd"
+        harden_linux_optional_packages:
+          - mlocate
+      test-harden-linux-ubuntu2204-timesyncd:
+        harden_linux_ntp: "systemd-timesyncd"
+        harden_linux_ntp_settings:
+          "^#NTP=": "NTP=ntp.ubuntu.com"
         harden_linux_optional_packages:
           - mlocate
 

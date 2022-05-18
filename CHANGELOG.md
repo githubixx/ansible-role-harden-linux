@@ -1,6 +1,11 @@
 Changelog
 ---------
 
+**v6.1.0**
+
+- **FEATURE**: Support Ubuntu 22.04 (contribution by @lvnilesh)
+- add Molecule test for Ubuntu 22.04
+
 **v6.0.0**
 
 This version contains a few **breaking** changes. Please read the changelog carefully:
