@@ -9,6 +9,6 @@
   loop_control:
     loop_var: whitelist_entry
   notify:
-    - restart sshguard
+    - Restart sshguard
   tags:
     - sshguard

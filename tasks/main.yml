@@ -77,7 +77,7 @@
     regexp: "{{ item }}"
     line: "{{ harden_linux_sshd_settings[item] }}"
     state: "present"
-  notify: "restart ssh"
+  notify: "Restart ssh"
   loop: "{{ harden_linux_sshd_settings | flatten }}"
   tags:
     - ssh

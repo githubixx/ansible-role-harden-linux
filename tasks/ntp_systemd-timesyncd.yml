@@ -37,7 +37,7 @@
         regexp: "{{ item }}"
         line: "{{ harden_linux_ntp_settings[item] }}"
         state: "present"
-      notify: "restart systemd-timesyncd"
+      notify: "Restart systemd-timesyncd"
       loop: "{{ harden_linux_ntp_settings | flatten }}"
   when:
     - harden_linux_ntp_settings is defined

@@ -6,7 +6,7 @@
     line: "WHITELIST_FILE={{ harden_linux_sshguard_whitelist_file }}"
     state: present
   notify:
-    - restart sshguard
+    - Restart sshguard
   tags:
     - sshguard
 
@@ -40,7 +40,7 @@
       :sshguard - [0:0]
       -A ufw-before-input -p tcp --dport {{ harden_linux__ssh_port }} -j sshguard
   notify:
-    - reload ufw
+    - Reload ufw
   tags:
     - sshguard
 
@@ -56,6 +56,6 @@
   loop_control:
     loop_var: whitelist_entry
   notify:
-    - restart sshguard
+    - Restart sshguard
   tags:
     - sshguard
