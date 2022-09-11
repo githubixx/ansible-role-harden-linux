@@ -2,11 +2,11 @@
   ansible.builtin.include_vars:
     file: "{{ item }}"
   with_first_found:
-    - "{{ ansible_distribution|lower }}-{{ ansible_distribution_major_version }}.yml"
-    - "{{ ansible_distribution|lower }}-{{ ansible_distribution_version }}.yml"
-    - "{{ ansible_distribution|lower }}-{{ ansible_distribution_release }}.yml"
-    - "{{ ansible_distribution|lower }}.yml"
-    - "{{ ansible_os_family|lower }}.yml"
+    - "{{ ansible_distribution | lower }}-{{ ansible_distribution_major_version }}.yml"
+    - "{{ ansible_distribution | lower }}-{{ ansible_distribution_version }}.yml"
+    - "{{ ansible_distribution | lower }}-{{ ansible_distribution_release }}.yml"
+    - "{{ ansible_distribution | lower }}.yml"
+    - "{{ ansible_os_family | lower }}.yml"
   tags:
     - always
 
@@ -17,11 +17,11 @@
       tags:
         - install
   with_first_found:
-    - "setup-{{ ansible_distribution|lower }}-{{ ansible_distribution_major_version }}.yml"
-    - "setup-{{ ansible_distribution|lower }}-{{ ansible_distribution_version }}.yml"
-    - "setup-{{ ansible_distribution|lower }}-{{ ansible_distribution_release }}.yml"
-    - "setup-{{ ansible_distribution|lower }}.yml"
-    - "setup-{{ ansible_os_family|lower }}.yml"
+    - "setup-{{ ansible_distribution | lower }}-{{ ansible_distribution_major_version }}.yml"
+    - "setup-{{ ansible_distribution | lower }}-{{ ansible_distribution_version }}.yml"
+    - "setup-{{ ansible_distribution | lower }}-{{ ansible_distribution_release }}.yml"
+    - "setup-{{ ansible_distribution | lower }}.yml"
+    - "setup-{{ ansible_os_family | lower }}.yml"
   tags:
     - install
 
@@ -67,7 +67,7 @@
 
 - name: Combine harden_linux_sshd_settings and harden_linux_sshd_settings_user (if defined)
   ansible.builtin.set_fact:
-    harden_linux_sshd_settings: "{{ harden_linux_sshd_settings | combine(harden_linux_sshd_settings_user|default({})) }}"
+    harden_linux_sshd_settings: "{{ harden_linux_sshd_settings | combine(harden_linux_sshd_settings_user | default({})) }}"
   tags:
     - ssh
 
@@ -78,13 +78,13 @@
     line: "{{ harden_linux_sshd_settings[item] }}"
     state: "present"
   notify: "restart ssh"
-  loop: "{{ harden_linux_sshd_settings|flatten }}"
+  loop: "{{ harden_linux_sshd_settings | flatten }}"
   tags:
     - ssh
 
 - name: Combine harden_linux_sysctl_settings and harden_linux_sysctl_settings_user (if defined)
   ansible.builtin.set_fact:
-    harden_linux_sysctl_settings: "{{ harden_linux_sysctl_settings | combine(harden_linux_sysctl_settings_user|default({})) }}"
+    harden_linux_sysctl_settings: "{{ harden_linux_sysctl_settings | combine(harden_linux_sysctl_settings_user | default({})) }}"
   tags:
     - sysctl
 
@@ -93,7 +93,7 @@
     name: "{{ item }}"
     value: "{{ harden_linux_sysctl_settings[item] }}"
     sysctl_set: true
-  loop: "{{ harden_linux_sysctl_settings|flatten }}"
+  loop: "{{ harden_linux_sysctl_settings | flatten }}"
   tags:
     - sysctl
 
