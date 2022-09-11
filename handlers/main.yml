@@ -1,10 +1,10 @@
 ---
 - name: reload ufw
-  ufw:
+  ansible.builtin.ufw:
     state: reloaded
 
 - name: restart ssh
-  service:
+  ansible.builtin.service:
     name: ssh
     state: "{{ item }}"
   loop:
@@ -15,7 +15,7 @@
   listen: "restart ssh"
 
 - name: restart sshd
-  service:
+  ansible.builtin.service:
     name: sshd
     state: "{{ item }}"
   loop:
@@ -26,16 +26,16 @@
   listen: "restart ssh"
 
 - name: restart ntpd
-  service:
+  ansible.builtin.service:
     name: "{{ harden_linux_ntp }}"
     state: restarted
 
 - name: restart systemd-timesyncd
-  service:
+  ansible.builtin.service:
     name: systemd-timesyncd
     state: restarted
 
 - name: restart sshguard
-  service:
+  ansible.builtin.service:
     name: sshguard
     state: restarted

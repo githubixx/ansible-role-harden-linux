@@ -1,6 +1,6 @@
 ---
 - name: Update sshguard whitelist file
-  lineinfile:
+  ansible.builtin.lineinfile:
     dest: "{{ harden_linux_sshguard_whitelist_file }}"
     regexp: "^{{ whitelist_entry }}"
     line: "{{ whitelist_entry }}"

@@ -1,13 +1,13 @@
 ---
 - name: Install sshguard package
-  package:
+  ansible.builtin.package:
     name: sshguard
     state: present
   tags:
     - sshguard
 
 - name: Register sshd port setting in ssd_config
-  shell: "grep -E '^Port ' /etc/ssh/sshd_config || echo 'Port 22'"
+  ansible.builtin.shell: "grep -E '^Port ' /etc/ssh/sshd_config || echo 'Port 22'"
   register: harden_linux__ssh_port_tmp
   changed_when: false
   failed_when: false
@@ -15,12 +15,13 @@
     - sshguard
 
 - name: Register sshd port fact
-  set_fact:
+  ansible.builtin.set_fact:
     harden_linux__ssh_port: "{{ harden_linux__ssh_port_tmp.stdout.split()[1] | trim }}"
   tags:
     - sshguard
 
-- include_tasks:
+- name: Include tasks for OSes
+  ansible.builtin.include_tasks:
     file: "{{ item }}"
     apply:
       tags:

@@ -1,5 +1,6 @@
 - name: Load required variables based on the OS type
-  include_vars: "{{ item }}"
+  ansible.builtin.include_vars: 
+    file: "{{ item }}"
   with_first_found:
     - "{{ ansible_distribution|lower }}-{{ ansible_distribution_major_version }}.yml"
     - "{{ ansible_distribution|lower }}-{{ ansible_distribution_version }}.yml"
@@ -10,7 +11,7 @@
     - always
 
 - name: OS specific setup
-  include_tasks:
+  ansible.builtin.include_tasks:
     file: "{{ item }}"
     apply:
       tags:
@@ -25,7 +26,7 @@
     - install
 
 - name: "Install optional packages"
-  package:
+  ansible.builtin.package:
     pkg: "{{ harden_linux_optional_packages }}"
     state: present
   when: harden_linux_optional_packages is defined
@@ -35,7 +36,7 @@
     - install
 
 - name: Ensure files absent
-  file:
+  ansible.builtin.file:
     path: "{{ file_to_delete }}"
     state: absent
   loop: "{{ harden_linux_files_to_delete }}"
@@ -43,7 +44,7 @@
     loop_var: file_to_delete
 
 - name: Setup NTP related services
-  include_tasks:
+  ansible.builtin.include_tasks:
     file: "ntp_{{ harden_linux_ntp }}.yml"
     apply:
       tags:
@@ -54,7 +55,7 @@
     - ntpd
 
 - name: Setup deploy user
-  include_tasks:
+  ansible.builtin.include_tasks:
     file: "deployuser.yml"
     apply:
       tags:
@@ -65,13 +66,13 @@
     - sudo
 
 - name: Combine harden_linux_sshd_settings and harden_linux_sshd_settings_user (if defined)
-  set_fact:
+  ansible.builtin.set_fact:
     harden_linux_sshd_settings: "{{ harden_linux_sshd_settings | combine(harden_linux_sshd_settings_user|default({})) }}"
   tags:
     - ssh
 
 - name: Ensure sshd_config setting
-  lineinfile:
+  ansible.builtin.lineinfile:
     dest: "/etc/ssh/sshd_config"
     regexp: "{{ item }}"
     line: "{{ harden_linux_sshd_settings[item] }}"
@@ -82,13 +83,13 @@
     - ssh
 
 - name: Combine harden_linux_sysctl_settings and harden_linux_sysctl_settings_user (if defined)
-  set_fact:
+  ansible.builtin.set_fact:
     harden_linux_sysctl_settings: "{{ harden_linux_sysctl_settings | combine(harden_linux_sysctl_settings_user|default({})) }}"
   tags:
     - sysctl
 
 - name: Sysctl settings
-  sysctl:
+  ansible.builtin.sysctl:
     name: "{{ item }}"
     value: "{{ harden_linux_sysctl_settings[item] }}"
     sysctl_set: true
@@ -97,7 +98,7 @@
     - sysctl
 
 - name: Setup UFW
-  include_tasks:
+  ansible.builtin.include_tasks:
     file: "ufw.yml"
     apply:
       tags:
@@ -106,7 +107,7 @@
     - ufw
 
 - name: Setup sshguard
-  include_tasks:
+  ansible.builtin.include_tasks:
     file: "sshguard.yml"
     apply:
       tags:
@@ -115,7 +116,7 @@
     - sshguard
 
 - name: Change root password
-  user:
+  ansible.builtin.user:
     name: "root"
     password: "{{ harden_linux_root_password }}"
   when: harden_linux_root_password is defined

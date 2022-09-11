@@ -1,6 +1,6 @@
 ---
 - name: Update UFW before.rules
-  blockinfile:
+  ansible.builtin.blockinfile:
     path: "/etc/ufw/before.rules"
     marker: "# {mark} ANSIBLE MANAGED BLOCK"
     insertafter: "^-A ufw-before-output -o lo -j ACCEPT"
@@ -12,7 +12,7 @@
     - reload ufw
 
 - name: Update sshguard whitelist file
-  lineinfile:
+  ansible.builtin.lineinfile:
     dest: "{{ harden_linux_sshguard_whitelist_file }}"
     regexp: "^{{ whitelist_entry }}"
     line: "{{ whitelist_entry }}"
