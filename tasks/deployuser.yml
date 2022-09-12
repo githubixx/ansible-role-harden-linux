@@ -1,11 +1,11 @@
 ---
 - name: "Install sudo"
-  package:
+  ansible.builtin.package:
     pkg: "sudo"
     state: present
 
 - name: Add deploy user
-  user:
+  ansible.builtin.user:
     name: "{{ harden_linux_deploy_user }}"
     password: "{{ harden_linux_deploy_user_password }}"
     uid: "{{ harden_linux_deploy_user_uid }}"
@@ -15,7 +15,7 @@
     - user
 
 - name: Add authorized keys for deploy user
-  authorized_key:
+  ansible.builtin.authorized_key:
     user: "{{ harden_linux_deploy_user }}"
     key: "{{ lookup('file', item) }}"
   loop: "{{ harden_linux_deploy_user_public_keys }}"
@@ -24,7 +24,7 @@
     - user
 
 - name: "Ensure deploy user present in /etc/sudoers.d/{{ harden_linux_deploy_user }}"
-  template:
+  ansible.builtin.template:
     src: "etc/sudoers.d/deployuser.j2"
     dest: "/etc/sudoers.d/{{ harden_linux_deploy_user }}"
     owner: "root"
@@ -35,7 +35,7 @@
     - sudo
 
 - name: Ensure deploy user is absent in /etc/sudoers
-  lineinfile:
+  ansible.builtin.lineinfile:
     dest: "/etc/sudoers"
     regexp: "^{{ harden_linux_deploy_user }} ALL"
     state: absent

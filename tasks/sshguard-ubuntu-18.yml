@@ -1,6 +1,6 @@
 ---
 - name: Update sshguard whitelist file
-  lineinfile:
+  ansible.builtin.lineinfile:
     dest: "{{ harden_linux_sshguard_whitelist_file }}"
     regexp: "^{{ whitelist_entry }}"
     line: "{{ whitelist_entry }}"
@@ -9,6 +9,6 @@
   loop_control:
     loop_var: whitelist_entry
   notify:
-    - restart sshguard
+    - Restart sshguard
   tags:
     - sshguard

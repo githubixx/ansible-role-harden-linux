@@ -1,6 +1,12 @@
 Changelog
 ---------
 
+**v6.2.0**
+
+- fix various `ansible-lint` issues
+- remove unneeded tests directory
+- add Github release action to push new release to Ansible Galaxy
+
 **v6.1.0**
 
 - **FEATURE**: Support Ubuntu 22.04 (contribution by @lvnilesh)

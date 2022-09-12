@@ -1,30 +1,30 @@
 ---
 - name: Install UFW package
-  package:
+  ansible.builtin.package:
     name: ufw
     state: present
   tags:
     - ufw
 
 - name: Combine harden_linux_ufw_defaults and harden_linux_ufw_defaults_user (if defined)
-  set_fact:
-    harden_linux_ufw_defaults: "{{ harden_linux_ufw_defaults | combine(harden_linux_ufw_defaults_user|default({})) }}"
+  ansible.builtin.set_fact:
+    harden_linux_ufw_defaults: "{{ harden_linux_ufw_defaults | combine(harden_linux_ufw_defaults_user | default({})) }}"
   tags:
     - ufw
 
 - name: UFW - Configure defaults
-  lineinfile:
+  ansible.builtin.lineinfile:
     dest: /etc/default/ufw
     regexp: "{{ item }}"
     line: "{{ harden_linux_ufw_defaults[item] }}"
     state: present
-  notify: "reload ufw"
-  loop: "{{ harden_linux_ufw_defaults|flatten }}"
+  notify: "Reload ufw"
+  loop: "{{ harden_linux_ufw_defaults | flatten }}"
   tags:
     - ufw
 
 - name: UFW - Apply firewall rules
-  ufw:
+  ansible.builtin.ufw:
     rule: "{{ item.rule }}"
     interface: "{{ item.interface | default('') }}"
     direction: "{{ item.direction | default('in') }}"
@@ -35,7 +35,7 @@
     protocol: "{{ item.protocol | default('any') }}"
     log: "{{ item.log | default(False) }}"
     delete: "{{ item.delete | default(False) }}"
-  notify: "reload ufw"
+  notify: "Reload ufw"
   loop: "{{ harden_linux_ufw_rules }}"
   loop_control:
     pause: 1
@@ -44,10 +44,10 @@
     - ufwrules
 
 - name: UFW - Allow configured networks to communicate
-  ufw:
+  ansible.builtin.ufw:
     rule: allow
     src: "{{ item }}"
-  notify: "reload ufw"
+  notify: "Reload ufw"
   loop: "{{ harden_linux_ufw_allow_networks }}"
   loop_control:
     pause: 1
@@ -56,13 +56,13 @@
     - ufw
 
 - name: UFW - Setup logging
-  ufw:
+  ansible.builtin.ufw:
     logging: "{{ harden_linux_ufw_logging }}"
   tags:
     - ufw
 
 - name: UFW - Enable firewall/iptables
-  ufw:
+  ansible.builtin.ufw:
     state: enabled
   tags:
     - ufw

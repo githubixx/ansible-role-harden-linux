@@ -1,11 +1,11 @@
 ---
 - name: "Install package unattended-upgrades"
-  package:
+  ansible.builtin.package:
     pkg: "unattended-upgrades"
     state: present
 
 - name: "({{ ansible_distribution }}) Update APT package cache"
-  apt:
+  ansible.builtin.apt:
     update_cache: "{{ harden_linux_ubuntu_update_cache }}"
     cache_valid_time: "{{ harden_linux_ubuntu_cache_valid_time }}"
   retries: 2
@@ -14,7 +14,7 @@
     - apt
 
 - name: "({{ ansible_distribution }}) Upgrade APT to the latest packages"
-  apt:
+  ansible.builtin.apt:
     upgrade: safe
   retries: 2
   delay: 5
@@ -22,7 +22,7 @@
     - apt
 
 - name: "({{ ansible_distribution }}) Adjust APT update intervals"
-  copy:
+  ansible.builtin.copy:
     src: etc/apt/apt.conf.d/10periodic
     dest: /etc/apt/apt.conf.d/10periodic
     owner: root

@@ -48,6 +48,8 @@ platforms:
         type: static
         ip: 192.168.10.50
 
+role_name_check: 1
+
 provisioner:
   name: ansible
   connection_options:
