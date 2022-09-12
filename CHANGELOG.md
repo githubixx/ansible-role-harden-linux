@@ -1,6 +1,10 @@
 Changelog
 ---------
 
+**v6.2.0**
+
+- fix various `ansible-lint` issues
+
 **v6.1.0**
 
 - **FEATURE**: Support Ubuntu 22.04 (contribution by @lvnilesh)
