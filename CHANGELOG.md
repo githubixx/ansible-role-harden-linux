@@ -4,6 +4,7 @@ Changelog
 **v6.2.0**
 
 - fix various `ansible-lint` issues
+- remove unneeded tests directory
 
 **v6.1.0**
 
