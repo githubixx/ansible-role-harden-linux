@@ -5,6 +5,7 @@ Changelog
 
 - fix various `ansible-lint` issues
 - remove unneeded tests directory
+- add Github release action to push new release to Ansible Galaxy
 
 **v6.1.0**
 
