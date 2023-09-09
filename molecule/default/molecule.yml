@@ -109,7 +109,7 @@ provisioner:
           "^pool 1": "pool 1.ubuntu.pool.ntp.org iburst"
           "^pool 2": "pool 2.ubuntu.pool.ntp.org iburst"
           "^pool 3": "pool 3.ubuntu.pool.ntp.org iburst"
-      test-harden-linux-ubuntu1804-openntpd:
+      test-harden-linux-ubuntu2204-openntpd:
         harden_linux_ntp: "openntpd"
         harden_linux_ntp_settings:
           "^servers 0": "servers 0.debian.pool.ntp.org"
