@@ -1,6 +1,6 @@
 ---
 - name: Reload ufw
-  ansible.builtin.ufw:
+  community.general.ufw:
     state: reloaded
 
 - name: Restart ssh
