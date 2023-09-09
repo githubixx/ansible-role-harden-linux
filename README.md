@@ -279,6 +279,29 @@ If you installed the role via `ansible-galaxy install githubixx.harden_linux` th
     - githubixx.harden_linux
 ```
 
+Testing
+-------
+
+This role has a small test setup that is created using [Molecule](https://github.com/ansible-community/molecule), libvirt (vagrant-libvirt) and QEMU/KVM. Please see my blog post [Testing Ansible roles with Molecule, libvirt (vagrant-libvirt) and QEMU/KVM](https://www.tauceti.blog/posts/testing-ansible-roles-with-molecule-libvirt-vagrant-qemu-kvm/) how to setup. The test configuration is [here](https://github.com/githubixx/ansible-role-runc/tree/master/molecule/default).
+
+Afterwards molecule can be executed:
+
+```bash
+molecule converge
+```
+
+This will setup a few virtual machines (VM) with different supported Linux operating systems and setup `harden_linux` role accordingly. A small verification step is also included:
+
+```bash
+molecule verify
+```
+
+To clean up run
+
+```bash
+molecule destroy
+```
+
 License
 -------
 
