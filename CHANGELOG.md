@@ -3,7 +3,7 @@ Changelog
 
 **v7.0.0**
 
-- **BREAKING**: `meta/main.yml`: change role_name from `harden-linux` to `harden_linux`. This is a requirement since quite some time for Ansible Galaxy. But the requirement was introduced after this role already existed for quite some time. So please update the name of the role in your playbook accordingly!
+- **BREAKING**: `meta/main.yml`: change `role_name` from `harden-linux` to `harden_linux`. This is a requirement since quite some time for Ansible Galaxy. But the requirement was introduced after this role already existed for quite some time. So please update the name of the role in your playbook accordingly!
 - **BREAKING**: remove support for Ubuntu 18.04 (reached EOL)
 - Molecule: add `verify` step
 - Fix various `ansible-lint` issues
