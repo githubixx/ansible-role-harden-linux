@@ -27,10 +27,10 @@
       tags:
         - wg-install
   with_first_found:
-    - "sshguard-{{ ansible_distribution|lower }}-{{ ansible_distribution_major_version }}.yml"
-    - "sshguard-{{ ansible_distribution|lower }}-{{ ansible_distribution_version }}.yml"
-    - "sshguard-{{ ansible_distribution|lower }}-{{ ansible_distribution_release }}.yml"
-    - "sshguard-{{ ansible_distribution|lower }}.yml"
-    - "sshguard-{{ ansible_os_family|lower }}.yml"
+    - "sshguard-{{ ansible_distribution | lower }}-{{ ansible_distribution_major_version }}.yml"
+    - "sshguard-{{ ansible_distribution | lower }}-{{ ansible_distribution_version }}.yml"
+    - "sshguard-{{ ansible_distribution | lower }}-{{ ansible_distribution_release }}.yml"
+    - "sshguard-{{ ansible_distribution | lower }}.yml"
+    - "sshguard-{{ ansible_os_family | lower }}.yml"
   tags:
     - sshguard
