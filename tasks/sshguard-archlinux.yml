@@ -50,7 +50,7 @@
     regexp: "^{{ whitelist_entry }}"
     line: "{{ whitelist_entry }}"
     create: true
-    mode: 0755
+    mode: "0755"
     state: present
   loop: "{{ harden_linux_sshguard_whitelist }}"
   loop_control:
