@@ -7,13 +7,12 @@ driver:
   provider:
     name: libvirt
     type: libvirt
-    options:
-      memory: 192
-      cpus: 2
 
 platforms:
   - name: test-harden-linux-ubuntu2004-timesyncd
     box: generic/ubuntu2004
+    memory: 2048
+    cpus: 2
     interfaces:
       - auto_config: true
         network_name: private_network
@@ -21,6 +20,8 @@ platforms:
         ip: 192.168.10.10
   - name: test-harden-linux-ubuntu2004-ntp
     box: generic/ubuntu2004
+    memory: 2048
+    cpus: 2
     interfaces:
       - auto_config: true
         network_name: private_network
@@ -28,6 +29,8 @@ platforms:
         ip: 192.168.10.20
   - name: test-harden-linux-ubuntu2204-openntpd
     box: generic/ubuntu2204
+    memory: 2048
+    cpus: 2
     interfaces:
       - auto_config: true
         network_name: private_network
@@ -35,6 +38,8 @@ platforms:
         ip: 192.168.10.30
   - name: test-harden-linux-arch-timesyncd
     box: archlinux/archlinux
+    memory: 2048
+    cpus: 2
     interfaces:
       - auto_config: true
         network_name: private_network
@@ -42,6 +47,8 @@ platforms:
         ip: 192.168.10.40
   - name: test-harden-linux-ubuntu2204-timesyncd
     box: alvistack/ubuntu-22.04
+    memory: 2048
+    cpus: 2
     interfaces:
       - auto_config: true
         network_name: private_network
