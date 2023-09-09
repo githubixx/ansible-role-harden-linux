@@ -46,7 +46,7 @@ platforms:
         type: static
         ip: 192.168.10.40
   - name: test-harden-linux-ubuntu2204-timesyncd
-    box: alvistack/ubuntu-22.04
+    box: generic/ubuntu2204
     memory: 2048
     cpus: 2
     interfaces:
