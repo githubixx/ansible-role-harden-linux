@@ -24,7 +24,7 @@
     - ufw
 
 - name: UFW - Apply firewall rules
-  ansible.builtin.ufw:
+  community.general.ufw:
     rule: "{{ item.rule }}"
     interface: "{{ item.interface | default('') }}"
     direction: "{{ item.direction | default('in') }}"
@@ -44,7 +44,7 @@
     - ufwrules
 
 - name: UFW - Allow configured networks to communicate
-  ansible.builtin.ufw:
+  community.general.ufw:
     rule: allow
     src: "{{ item }}"
   notify: "Reload ufw"
@@ -56,13 +56,13 @@
     - ufw
 
 - name: UFW - Setup logging
-  ansible.builtin.ufw:
+  community.general.ufw:
     logging: "{{ harden_linux_ufw_logging }}"
   tags:
     - ufw
 
 - name: UFW - Enable firewall/iptables
-  ansible.builtin.ufw:
+  community.general.ufw:
     state: enabled
   tags:
     - ufw

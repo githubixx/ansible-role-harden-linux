@@ -7,13 +7,14 @@ driver:
   provider:
     name: libvirt
     type: libvirt
-    options:
-      memory: 192
-      cpus: 2
 
 platforms:
   - name: test-harden-linux-ubuntu2004-timesyncd
     box: generic/ubuntu2004
+    memory: 2048
+    cpus: 2
+    groups:
+      - timesyncd
     interfaces:
       - auto_config: true
         network_name: private_network
@@ -21,13 +22,21 @@ platforms:
         ip: 192.168.10.10
   - name: test-harden-linux-ubuntu2004-ntp
     box: generic/ubuntu2004
+    memory: 2048
+    cpus: 2
+    groups:
+      - ntp
     interfaces:
       - auto_config: true
         network_name: private_network
         type: static
         ip: 192.168.10.20
-  - name: test-harden-linux-ubuntu1804-openntpd
-    box: generic/ubuntu1804
+  - name: test-harden-linux-ubuntu2204-openntpd
+    box: generic/ubuntu2204
+    memory: 2048
+    cpus: 2
+    groups:
+      - openntpd
     interfaces:
       - auto_config: true
         network_name: private_network
@@ -35,20 +44,26 @@ platforms:
         ip: 192.168.10.30
   - name: test-harden-linux-arch-timesyncd
     box: archlinux/archlinux
+    memory: 2048
+    cpus: 2
+    groups:
+      - timesyncd
     interfaces:
       - auto_config: true
         network_name: private_network
         type: static
         ip: 192.168.10.40
   - name: test-harden-linux-ubuntu2204-timesyncd
-    box: alvistack/ubuntu-22.04
+    box: generic/ubuntu2204
+    memory: 2048
+    cpus: 2
+    groups:
+      - timesyncd
     interfaces:
       - auto_config: true
         network_name: private_network
         type: static
         ip: 192.168.10.50
-
-role_name_check: 1
 
 provisioner:
   name: ansible
@@ -61,7 +76,6 @@ provisioner:
   inventory:
     group_vars:
       all:
-        harden_linux_root_password: "{{ lookup('file', 'myuserpassword_hash') }}" # mypassword
         harden_linux_deploy_user: deployer
         harden_linux_deploy_user_password: "{{ lookup('file', 'myuserpassword_hash') }}" # mypassword
         harden_linux_deploy_user_home: /home/deployer
@@ -103,13 +117,14 @@ provisioner:
         harden_linux_optional_packages:
           - mlocate
       test-harden-linux-ubuntu2004-ntp:
+        harden_linux_root_password: "{{ lookup('file', 'myuserpassword_hash') }}" # mypassword
         harden_linux_ntp: "ntp"
         harden_linux_ntp_settings:
           "^pool 0": "pool 0.ubuntu.pool.ntp.org iburst"
           "^pool 1": "pool 1.ubuntu.pool.ntp.org iburst"
           "^pool 2": "pool 2.ubuntu.pool.ntp.org iburst"
           "^pool 3": "pool 3.ubuntu.pool.ntp.org iburst"
-      test-harden-linux-ubuntu1804-openntpd:
+      test-harden-linux-ubuntu2204-openntpd:
         harden_linux_ntp: "openntpd"
         harden_linux_ntp_settings:
           "^servers 0": "servers 0.debian.pool.ntp.org"
@@ -117,10 +132,12 @@ provisioner:
           "^servers 2": "servers 2.debian.pool.ntp.org"
           "^servers 3": "servers 3.debian.pool.ntp.org"
       test-harden-linux-arch-timesyncd:
+        harden_linux_root_password: "{{ lookup('file', 'myuserpassword_hash') }}" # mypassword
         harden_linux_ntp: "systemd-timesyncd"
         harden_linux_optional_packages:
           - mlocate
       test-harden-linux-ubuntu2204-timesyncd:
+        harden_linux_root_password: "{{ lookup('file', 'myuserpassword_hash') }}" # mypassword
         harden_linux_ntp: "systemd-timesyncd"
         harden_linux_ntp_settings:
           "^#NTP=": "NTP=ntp.ubuntu.com"
@@ -128,18 +145,11 @@ provisioner:
           - mlocate
 
 scenario:
-  name: kvm
+  name: default
   test_sequence:
     - prepare
     - converge
 
 verifier:
-  name: testinfra
-  directory: tests
-  options:
-    # Add a -v so you see the individual test names,
-    # particularly useful with parameterized tests
-    v: true
-    sudo: true
-  lint:
-    name: flake8
+  name: ansible
+  enabled: true

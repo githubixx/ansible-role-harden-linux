@@ -15,7 +15,7 @@
     - user
 
 - name: Add authorized keys for deploy user
-  ansible.builtin.authorized_key:
+  ansible.posix.authorized_key:
     user: "{{ harden_linux_deploy_user }}"
     key: "{{ lookup('file', item) }}"
   loop: "{{ harden_linux_deploy_user_public_keys }}"

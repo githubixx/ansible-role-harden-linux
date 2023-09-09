@@ -89,7 +89,7 @@
     - sysctl
 
 - name: Sysctl settings
-  ansible.builtin.sysctl:
+  ansible.posix.sysctl:
     name: "{{ item }}"
     value: "{{ harden_linux_sysctl_settings[item] }}"
     sysctl_set: true

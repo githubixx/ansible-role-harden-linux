@@ -85,7 +85,7 @@ harden_linux_files_to_delete:
 #
 # For more information about this settings have a look at:
 # https://cloud.google.com/compute/docs/images/building-custom-os
-# https://cloud.google.com/compute/docs/images/configuring-imported-images
+# https://cloud.google.com/compute/docs/import/configuring-imported-images
 # With ufw package installed: /etc/ufw/sysctl.conf
 #
 # The following settings are not available for all kernels so they you need

@@ -3,7 +3,7 @@ ansible-role-harden-linux
 
 This Ansible role was mainly created for my blog series [Kubernetes the not so hard way with Ansible - Harden the instances](https://www.tauceti.blog/posts/kubernetes-the-not-so-hard-way-with-ansible-harden-the-instances/). But it can be used also standalone of course to harden Linux. It has the following features:
 
-- Change root password
+- Optional: Change root password
 - Add a regular/deploy user used for administration (e.g. for Ansible or login via SSH)
 - Adjust APT update intervals
 - Setup UFW firewall and allow only SSH access by default (add more rules/allowed networks if you like)
@@ -28,6 +28,7 @@ Role Variables
 The following variables don't have defaults. You need to specify them either in a file in `group_vars` or `host_vars` directory. E.g. if this settings should be used only for one specific host create a file for that host called like the FQDN of that host (e.g `host_vars/your-server.example.tld`) and put the variables with the correct values there. If you want to apply this variables to a host group create a file `group_vars/your-group.yml` e.g. Replace `your-group` with the host group name which you created in the Ansible `hosts` file (do not confuse with /etc/hosts...). `harden_linux_deploy_user_public_keys` loads all the public SSH key files specified in the list from your local hard disk. So at least you need to specify:
 
 ```yaml
+# This is optional. If not specified "root" account password won't be changed.
 harden_linux_root_password: your_encrypted_password_here
 
 harden_linux_deploy_user: deploy
@@ -37,13 +38,13 @@ harden_linux_deploy_user_public_keys:
   - /home/your_user/.ssh/id_rsa.pub
 ```
 
-With `harden_linux_root_password` and `harden_linux_deploy_user_password` we specify the password for the `root` user and the `deploy` user. Ansible won't encrypt the password for you. How to create an encrypted password is described in the [Ansible FAQs](http://docs.ansible.com/ansible/latest/reference_appendices/faq.html#how-do-i-generate-encrypted-passwords-for-the-user-module). But as Ansible is installed anyways the most easiest way is probably the following command:
+With `harden_linux_root_password` (optional as mentioned above) and `harden_linux_deploy_user_password` we specify the password for the `root` user and the `deploy` user. Ansible won't encrypt the password for you. How to create an encrypted password is described in the [Ansible FAQs](http://docs.ansible.com/ansible/latest/reference_appendices/faq.html#how-do-i-generate-encrypted-passwords-for-the-user-module). But as Ansible is installed anyways the most easiest way is probably the following command:
 
 ```bash
 ansible localhost -m debug -a "msg={{ 'mypassword' | password_hash('sha512', 'mysecretsalt') }}"
 ```
 
-`harden_linux_deploy_user` specifies the user we want to use to login at the remote host. As already mentioned the `harden-linux` role will disable root user login via SSH for a good reason. So a different user is needed. This user will get "sudo" permission which is need for Ansible (and/or yourself of course) to do it's work.
+`harden_linux_deploy_user` specifies the user we want to use to login at the remote host. As already mentioned the `harden_linux` role will disable root user login via SSH for a good reason. So a different user is needed. This user will get "sudo" permission which is need for Ansible (and/or yourself of course) to do it's work.
 
 `harden_linux_deploy_user_public_keys` specifies a list of public SSH key files you want to add to `$HOME/.ssh/authorized_keys` of the deploy user on the remote host. If you specify `/home/deploy/.ssh/id_rsa.pub` e.g. as a value here the content of that **local** file will be added to `$HOME/.ssh/authorized_keys` of the deploy user on the remote host.
 
@@ -130,7 +131,7 @@ harden_linux_ufw_allow_networks:
   - "10.200.0.0/16"
 ```
 
-Next harden-linux role also changes some system variables (sysctl.conf / proc filesystem). This settings are recommendations from Google which they use for their Google Compute Cloud OS images (see [Google Cloud - Requirements to build custom images](https://cloud.google.com/compute/docs/images/building-custom-os) and [Configure your imported image for Compute Engine](https://cloud.google.com/compute/docs/images/configuring-imported-images)). These are the default settings (if you are happy with this settings you don't have to do anything but I recommend to verify if they work for your setup):
+Next `harden_linux` role also changes some system variables (sysctl.conf / proc filesystem). This settings are recommendations from Google which they use for their Google Compute Cloud OS images (see [Google Cloud - Requirements to build custom images](https://cloud.google.com/compute/docs/images/building-custom-os) and [Configure your imported image for Compute Engine](https://cloud.google.com/compute/docs/images/configuring-imported-images)). These are the default settings (if you are happy with this settings you don't have to do anything but I recommend to verify if they work for your setup):
 
 ```yaml
 harden_linux_sysctl_settings:
@@ -271,12 +272,35 @@ harden_linux_archlinux_update_cache: true
 Example Playbook
 ----------------
 
-If you installed the role via `ansible-galaxy install githubixx.harden-linux` then include the role into your playbook like in this example:
+If you installed the role via `ansible-galaxy install githubixx.harden_linux` then include the role into your playbook like in this example:
 
 ```yaml
 - hosts: webservers
   roles:
-    - githubixx.harden-linux
+    - githubixx.harden_linux
+```
+
+Testing
+-------
+
+This role has a small test setup that is created using [Molecule](https://github.com/ansible-community/molecule), libvirt (vagrant-libvirt) and QEMU/KVM. Please see my blog post [Testing Ansible roles with Molecule, libvirt (vagrant-libvirt) and QEMU/KVM](https://www.tauceti.blog/posts/testing-ansible-roles-with-molecule-libvirt-vagrant-qemu-kvm/) how to setup. The test configuration is [here](https://github.com/githubixx/ansible-role-runc/tree/master/molecule/default).
+
+Afterwards molecule can be executed:
+
+```bash
+molecule converge
+```
+
+This will setup a few virtual machines (VM) with different supported Linux operating systems and setup `harden_linux` role accordingly. A small verification step is also included:
+
+```bash
+molecule verify
+```
+
+To clean up run
+
+```bash
+molecule destroy
 ```
 
 License

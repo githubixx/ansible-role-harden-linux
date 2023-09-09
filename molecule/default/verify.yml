@@ -1,0 +1,86 @@
+---
+- name: Verify sshguard
+  hosts: all
+  tasks:
+    - name: Get sshguard status
+      ansible.builtin.systemd:
+        service: sshguard
+        state: started
+      register: sshguard__status
+
+    - name: Ensure sshguard is started
+      ansible.builtin.assert:
+        that:
+          - sshguard__status.state == "started"
+
+- name: Verify systemd-timesyncd
+  hosts: timesyncd
+  tasks:
+    - name: Get systemd-timesyncd status
+      ansible.builtin.systemd:
+        service: systemd-timesyncd
+        state: started
+      register: timesyncd__status
+
+    - name: Ensure systemd-timesyncd is started
+      ansible.builtin.assert:
+        that:
+          - timesyncd__status.state == "started"
+
+- name: Verify openntpd
+  hosts: openntpd
+  tasks:
+    - name: Get openntpd status
+      ansible.builtin.systemd:
+        service: openntpd
+        state: started
+      register: openntpd__status
+
+    - name: Ensure openntpd is started
+      ansible.builtin.assert:
+        that:
+          - openntpd__status.state == "started"
+
+- name: Verify UFW
+  hosts: all
+  tasks:
+    - name: Execute ufw status to capture output
+      ansible.builtin.command:
+        cmd: /usr/sbin/ufw status
+      register: harden_linux__ufw_status
+      changed_when: false
+
+    - name: Ensure ufw status output contains correct output
+      ansible.builtin.assert:
+        that:
+          - "'{{ harden_linux__ufw_status_output }}' in harden_linux__ufw_status.stdout"
+      loop:
+        - "22/tcp                     ALLOW       Anywhere"
+        - "80/tcp                     ALLOW       Anywhere"
+        - "443/tcp                    ALLOW       Anywhere"
+        - "Anywhere                   ALLOW       10.0.0.0/8"
+        - "Anywhere                   ALLOW       172.16.0.0/12"
+        - "Anywhere                   ALLOW       192.168.0.0/16"
+        - "22/tcp (v6)                ALLOW       Anywhere (v6)"
+        - "80/tcp (v6)                ALLOW       Anywhere (v6)"
+        - "443/tcp (v6)               ALLOW       Anywhere (v6)"
+      loop_control:
+        loop_var: harden_linux__ufw_status_output
+
+- name: Verify sshd_config settings
+  hosts: all
+  vars:
+    harden_linux__sshd_settings:
+      password_authentication:
+        regex: '^PasswordAuthentication'
+        value: 'PasswordAuthentication yes'
+      x11forwarding:
+        regex: '^X11Forwarding'
+        value: 'X11Forwarding no'
+  tasks:
+    - name: Check sshd_config settings
+      ansible.builtin.include_tasks:
+        file: tasks/sshd_config_settings.yml
+      loop: "{{ harden_linux__sshd_settings | dict2items }}"
+      loop_control:
+        loop_var: harden_linux__sshd_config_setting

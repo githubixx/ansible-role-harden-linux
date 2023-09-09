@@ -1,6 +1,21 @@
 Changelog
 ---------
 
+**v7.0.0**
+
+- **BREAKING**: `meta/main.yml`: change `role_name` from `harden-linux` to `harden_linux`. This is a requirement since quite some time for Ansible Galaxy. But the requirement was introduced after this role already existed for quite some time. So please update the name of the role in your playbook accordingly!
+- **BREAKING**: remove support for Ubuntu 18.04 (reached EOL)
+- Molecule: add `verify` step
+- Fix various `ansible-lint` issues
+- `.ansible-lint`: remove `role-name` / add `name[template]`
+- `molecule/default/molecule.yml`: use `generic/ubuntu2204` VM image instead of `alvistack/ubuntu-22.04`
+- `molecule/default/molecule.yml`: move `memory` and `cpus` properties to hosts
+- `molecule/default/molecule.yml`: rename scenario `kvm` to `default`
+- `molecule/default/molecule.yml`: rename `test-harden-linux-ubuntu1804-openntpd` to `test-harden-linux-ubuntu2204-openntpd`
+- `molecule/default/molecule.yml`: adjust `verifier`
+- `defaults/main.yml`: fix link
+- `README.md`: add information about Molecule test
+
 **v6.2.0**
 
 - fix various `ansible-lint` issues

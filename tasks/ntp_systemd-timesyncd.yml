@@ -13,6 +13,8 @@
     - openntpd
 
 - name: (systemd-timesyncd) Setup configuration
+  when:
+    - harden_linux_ntp_settings is defined
   block:
     - name: (systemd-timesyncd) Create directory for systemd drop-in
       ansible.builtin.file:
@@ -39,8 +41,6 @@
         state: "present"
       notify: "Restart systemd-timesyncd"
       loop: "{{ harden_linux_ntp_settings | flatten }}"
-  when:
-    - harden_linux_ntp_settings is defined
 
 - name: (systemd-timesyncd) Enable systemd service
   ansible.builtin.service:
