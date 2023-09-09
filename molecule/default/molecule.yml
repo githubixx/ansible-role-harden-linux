@@ -128,7 +128,7 @@ provisioner:
           - mlocate
 
 scenario:
-  name: kvm
+  name: default
   test_sequence:
     - prepare
     - converge
