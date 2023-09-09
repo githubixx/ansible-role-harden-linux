@@ -13,6 +13,8 @@ platforms:
     box: generic/ubuntu2004
     memory: 2048
     cpus: 2
+    groups:
+      - timesyncd
     interfaces:
       - auto_config: true
         network_name: private_network
@@ -22,6 +24,8 @@ platforms:
     box: generic/ubuntu2004
     memory: 2048
     cpus: 2
+    groups:
+      - ntp
     interfaces:
       - auto_config: true
         network_name: private_network
@@ -31,6 +35,8 @@ platforms:
     box: generic/ubuntu2204
     memory: 2048
     cpus: 2
+    groups:
+      - openntpd
     interfaces:
       - auto_config: true
         network_name: private_network
@@ -40,6 +46,8 @@ platforms:
     box: archlinux/archlinux
     memory: 2048
     cpus: 2
+    groups:
+      - timesyncd
     interfaces:
       - auto_config: true
         network_name: private_network
@@ -49,6 +57,8 @@ platforms:
     box: generic/ubuntu2204
     memory: 2048
     cpus: 2
+    groups:
+      - timesyncd
     interfaces:
       - auto_config: true
         network_name: private_network
@@ -66,7 +76,6 @@ provisioner:
   inventory:
     group_vars:
       all:
-        harden_linux_root_password: "{{ lookup('file', 'myuserpassword_hash') }}" # mypassword
         harden_linux_deploy_user: deployer
         harden_linux_deploy_user_password: "{{ lookup('file', 'myuserpassword_hash') }}" # mypassword
         harden_linux_deploy_user_home: /home/deployer
@@ -108,6 +117,7 @@ provisioner:
         harden_linux_optional_packages:
           - mlocate
       test-harden-linux-ubuntu2004-ntp:
+        harden_linux_root_password: "{{ lookup('file', 'myuserpassword_hash') }}" # mypassword
         harden_linux_ntp: "ntp"
         harden_linux_ntp_settings:
           "^pool 0": "pool 0.ubuntu.pool.ntp.org iburst"
@@ -122,10 +132,12 @@ provisioner:
           "^servers 2": "servers 2.debian.pool.ntp.org"
           "^servers 3": "servers 3.debian.pool.ntp.org"
       test-harden-linux-arch-timesyncd:
+        harden_linux_root_password: "{{ lookup('file', 'myuserpassword_hash') }}" # mypassword
         harden_linux_ntp: "systemd-timesyncd"
         harden_linux_optional_packages:
           - mlocate
       test-harden-linux-ubuntu2204-timesyncd:
+        harden_linux_root_password: "{{ lookup('file', 'myuserpassword_hash') }}" # mypassword
         harden_linux_ntp: "systemd-timesyncd"
         harden_linux_ntp_settings:
           "^#NTP=": "NTP=ntp.ubuntu.com"
