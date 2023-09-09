@@ -4,6 +4,6 @@
   become: true
   gather_facts: true
   tasks:
-    - name: Include harden-linux role
+    - name: Include harden_linux role
       include_role:
-        name: githubixx.harden-linux
+        name: githubixx.harden_linux

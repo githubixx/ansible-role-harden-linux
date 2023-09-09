@@ -43,7 +43,7 @@ With `harden_linux_root_password` and `harden_linux_deploy_user_password` we spe
 ansible localhost -m debug -a "msg={{ 'mypassword' | password_hash('sha512', 'mysecretsalt') }}"
 ```
 
-`harden_linux_deploy_user` specifies the user we want to use to login at the remote host. As already mentioned the `harden-linux` role will disable root user login via SSH for a good reason. So a different user is needed. This user will get "sudo" permission which is need for Ansible (and/or yourself of course) to do it's work.
+`harden_linux_deploy_user` specifies the user we want to use to login at the remote host. As already mentioned the `harden_linux` role will disable root user login via SSH for a good reason. So a different user is needed. This user will get "sudo" permission which is need for Ansible (and/or yourself of course) to do it's work.
 
 `harden_linux_deploy_user_public_keys` specifies a list of public SSH key files you want to add to `$HOME/.ssh/authorized_keys` of the deploy user on the remote host. If you specify `/home/deploy/.ssh/id_rsa.pub` e.g. as a value here the content of that **local** file will be added to `$HOME/.ssh/authorized_keys` of the deploy user on the remote host.
 
@@ -130,7 +130,7 @@ harden_linux_ufw_allow_networks:
   - "10.200.0.0/16"
 ```
 
-Next harden-linux role also changes some system variables (sysctl.conf / proc filesystem). This settings are recommendations from Google which they use for their Google Compute Cloud OS images (see [Google Cloud - Requirements to build custom images](https://cloud.google.com/compute/docs/images/building-custom-os) and [Configure your imported image for Compute Engine](https://cloud.google.com/compute/docs/images/configuring-imported-images)). These are the default settings (if you are happy with this settings you don't have to do anything but I recommend to verify if they work for your setup):
+Next `harden_linux` role also changes some system variables (sysctl.conf / proc filesystem). This settings are recommendations from Google which they use for their Google Compute Cloud OS images (see [Google Cloud - Requirements to build custom images](https://cloud.google.com/compute/docs/images/building-custom-os) and [Configure your imported image for Compute Engine](https://cloud.google.com/compute/docs/images/configuring-imported-images)). These are the default settings (if you are happy with this settings you don't have to do anything but I recommend to verify if they work for your setup):
 
 ```yaml
 harden_linux_sysctl_settings:
@@ -271,12 +271,12 @@ harden_linux_archlinux_update_cache: true
 Example Playbook
 ----------------
 
-If you installed the role via `ansible-galaxy install githubixx.harden-linux` then include the role into your playbook like in this example:
+If you installed the role via `ansible-galaxy install githubixx.harden_linux` then include the role into your playbook like in this example:
 
 ```yaml
 - hosts: webservers
   roles:
-    - githubixx.harden-linux
+    - githubixx.harden_linux
 ```
 
 License
