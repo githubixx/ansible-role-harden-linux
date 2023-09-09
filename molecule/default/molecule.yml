@@ -26,8 +26,8 @@ platforms:
         network_name: private_network
         type: static
         ip: 192.168.10.20
-  - name: test-harden-linux-ubuntu1804-openntpd
-    box: generic/ubuntu1804
+  - name: test-harden-linux-ubuntu2204-openntpd
+    box: generic/ubuntu2204
     interfaces:
       - auto_config: true
         network_name: private_network
