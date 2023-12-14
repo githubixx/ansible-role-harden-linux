@@ -145,6 +145,13 @@ provisioner:
           "^#NTP=": "NTP=ntp.ubuntu.com"
         harden_linux_optional_packages:
           - mlocate
+        harden_linux_systemd_resolved_settings:
+          - DNS=
+          - DNS=9.9.9.9 1.1.1.1 2606:4700:4700::1111 2620:fe::fe
+          - FallbackDNS=
+          - FallbackDNS=149.112.112.112 1.0.0.1 2620:fe::9 2606:4700:4700::1001
+          - DNSOverTLS=
+          - DNSOverTLS=opportunistic
 
 scenario:
   name: default

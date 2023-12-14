@@ -259,6 +259,25 @@ harden_linux_files_to_delete:
   - "/root/.pw"
 ```
 
+If `systemd-resolved` is used for DNS resolution its behavior can be adjusted with `harden_linux_systemd_resolved_settings`. A systemd drop-in configuration will be created in "/etc/systemd/resolved.conf.d/99-override.conf" and the settings specified added there.
+
+Note: If a setting in `/etc/systemd/resolved.conf` is already set (e.g. `DNS=8.8.8.8`) then setting `DNS=9.9.9.9` below will add up. That means the final setting will be `DNS=8.8.8.8 9.9.9.9`. If you don't what that you need to "unset" the value first and then add the value you want to have. E.g.:
+
+```yaml
+harden_linux_systemd_resolved_settings:
+  - DNS=
+  - DNS=9.9.9.9
+```
+
+Another example:
+
+```
+harden_linux_systemd_resolved_settings:
+  - DNS=9.9.9.9 1.1.1.1 2606:4700:4700::1111 2620:fe::fe
+  - FallbackDNS=149.112.112.112 1.0.0.1 2620:fe::9 2606:4700:4700::1001
+  - DNSOverTLS=opportunistic
+```
+
 Also the package manager caching behavior can be influenced. E.g. for Ubuntu:
 
 ```yaml
