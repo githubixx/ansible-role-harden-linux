@@ -152,6 +152,14 @@ harden_linux_sshd_settings:
   "^PermitTunnel": "PermitTunnel no"                      # Disable tun(4) device forwarding
   "^Port ": "Port 22"                                     # Set SSHd port
 
+# When this variable is set settings for "systemd-resolved" while be changed.
+# A systemd drop-in configuration will be created in "/etc/systemd/resolved.conf.d/99-override.conf"
+# and the settings specified added there. The settings below are just examples.
+# harden_linux_systemd_resolved_settings:
+#   - DNS=9.9.9.9 1.1.1.1 2606:4700:4700::1111 2620:fe::fe
+#   - FallbackDNS=149.112.112.112 1.0.0.1 2620:fe::9 2606:4700:4700::1001
+#   - DNSOverTLS=opportunistic
+
 # By default only allow SSH inbound traffic.
 harden_linux_ufw_rules:
   - rule: "allow"
