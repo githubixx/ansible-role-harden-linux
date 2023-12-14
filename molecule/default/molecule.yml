@@ -124,6 +124,8 @@ provisioner:
           "^pool 1": "pool 1.ubuntu.pool.ntp.org iburst"
           "^pool 2": "pool 2.ubuntu.pool.ntp.org iburst"
           "^pool 3": "pool 3.ubuntu.pool.ntp.org iburst"
+        harden_linux_absent_packages:
+          - dosfstools
       test-harden-linux-ubuntu2204-openntpd:
         harden_linux_ntp: "openntpd"
         harden_linux_ntp_settings:
