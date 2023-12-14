@@ -4,7 +4,7 @@
   remote_user: vagrant
   become: true
   gather_facts: true
-  ansible.builtin.include_role:
+  tasks:
     - name: Include harden_linux role
-      include_role:
+      ansible.builtin.include_role:
         name: githubixx.harden_linux
