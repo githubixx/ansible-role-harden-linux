@@ -12,6 +12,11 @@ harden_linux_files_to_delete:
 # harden_linux_optional_packages:
 #   - ...
 
+# List of packages that should be absent/uninstalled from host. By default this
+# variable is commented out.
+# harden_linux_absent_packages:
+#   - ...
+
 # NTP package to install. Valid options are:
 #
 # - openntpd

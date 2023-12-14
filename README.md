@@ -48,14 +48,21 @@ ansible localhost -m debug -a "msg={{ 'mypassword' | password_hash('sha512', 'my
 
 `harden_linux_deploy_user_public_keys` specifies a list of public SSH key files you want to add to `$HOME/.ssh/authorized_keys` of the deploy user on the remote host. If you specify `/home/deploy/.ssh/id_rsa.pub` e.g. as a value here the content of that **local** file will be added to `$HOME/.ssh/authorized_keys` of the deploy user on the remote host.
 
-The following variables below have defaults. So you only need to change them if you need another value for the variable. `harden_linux_optional_packages` (before version `v6.0.0` of this role this variable was called `harden_linux_required_packages`) specifies additional/optional packages to install on the remote host e.g. (by default this variable is not specified):
+`harden_linux_optional_packages` (before version `v6.0.0` of this role this variable was called `harden_linux_required_packages`) specifies additional/optional packages to install on the remote host. By default this variable is not specified. E.g.:
 
 ```yaml
 harden_linux_optional_packages:
   - vim
 ```
 
-The role changes some `sshd` settings by default:
+In contrast to the former variable, `harden_linux_absent_packages` will uninstall OS packages on the remote host. By default this variable is not specified. E.g.:
+
+```yaml
+harden_linux_absent_packages:
+  - vim
+```
+
+The following variables below have defaults. So you only need to change them if you need another value for the variable. The role changes some `sshd` settings by default:
 
 ```yaml
 harden_linux_sshd_settings:

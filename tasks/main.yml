@@ -35,6 +35,16 @@
   tags:
     - install
 
+- name: "Uninstall OS packages"
+  ansible.builtin.package:
+    pkg: "{{ harden_linux_absent_packages }}"
+    state: absent
+  when: harden_linux_absent_packages is defined
+  retries: 2
+  delay: 5
+  tags:
+    - uninstall
+
 - name: Ensure files absent
   ansible.builtin.file:
     path: "{{ file_to_delete }}"
