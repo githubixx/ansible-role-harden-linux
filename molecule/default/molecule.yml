@@ -19,7 +19,7 @@ platforms:
       - auto_config: true
         network_name: private_network
         type: static
-        ip: 192.168.10.10
+        ip: 10.66.66.10
   - name: test-harden-linux-ubuntu2004-ntp
     box: generic/ubuntu2004
     memory: 2048
@@ -30,7 +30,7 @@ platforms:
       - auto_config: true
         network_name: private_network
         type: static
-        ip: 192.168.10.20
+        ip: 10.66.66.20
   - name: test-harden-linux-ubuntu2204-openntpd
     box: generic/ubuntu2204
     memory: 2048
@@ -41,7 +41,7 @@ platforms:
       - auto_config: true
         network_name: private_network
         type: static
-        ip: 192.168.10.30
+        ip: 10.66.66.30
   - name: test-harden-linux-arch-timesyncd
     box: archlinux/archlinux
     memory: 2048
@@ -52,7 +52,7 @@ platforms:
       - auto_config: true
         network_name: private_network
         type: static
-        ip: 192.168.10.40
+        ip: 10.66.66.40
   - name: test-harden-linux-ubuntu2204-timesyncd
     box: generic/ubuntu2204
     memory: 2048
@@ -63,7 +63,7 @@ platforms:
       - auto_config: true
         network_name: private_network
         type: static
-        ip: 192.168.10.50
+        ip: 10.66.66.50
 
 provisioner:
   name: ansible
