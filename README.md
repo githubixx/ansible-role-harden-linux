@@ -5,11 +5,12 @@ This Ansible role was mainly created for my blog series [Kubernetes the not so h
 - Optional: Change root password
 - Add a regular/deploy user used for administration (e.g. for Ansible or login via SSH)
 - Adjust APT update intervals
-- Setup UFW firewall and allow only SSH access by default (add more rules/allowed networks if you like)
+- Setup `UFW` firewall and allow only SSH access by default (add more rules/allowed networks if you like)
 - Adjust security related sysctl settings
-- Adjust sshd settings e.g disable sshd password authentication, disable sshd root login and disable sshd PermitTunnel
-- Install sshguard and adjust whitelist
-- Optional: Install/configure Network Time Synchronization (NTP) e.g. `openntpd`/`ntp`/`systemd-timesyncd`
+- Adjust `sshd` settings e.g disable sshd password authentication, disable sshd root login and disable sshd PermitTunnel
+- Install `sshguard` and adjust whitelist
+- Optional: Install/configure `Network Time Synchronization` (NTP) e.g. `openntpd`/`ntp`/`systemd-timesyncd`
+- Optional: Change `systemd-resolved` configuration
 
 ## Versions
 
@@ -25,23 +26,41 @@ See full  [CHANGELOG.md](https://github.com/githubixx/ansible-role-harden-linux/
 
 ### v7.1.0
 
+FEATURE
+
 - introduce `harden_linux_absent_packages` variable
 - introduce `harden_linux_systemd_resolved_settings` variable
 
+MOLECULE
+
+- change IP addresses
+
+OTHER
+
+- fix `ansible-lint` issues
+
 ### v7.0.0
 
-- **BREAKING**: `meta/main.yml`: change `role_name` from `harden-linux` to `harden_linux`. This is a requirement since quite some time for Ansible Galaxy. But the requirement was introduced after this role already existed for quite some time. So please update the name of the role in your playbook accordingly!
-- **BREAKING**: remove support for Ubuntu 18.04 (reached EOL)
-- Molecule: add `verify` step
-- Fix various `ansible-lint` issues
+BREAKING
+
+- `meta/main.yml`: change `role_name` from `harden-linux` to `harden_linux`. This is a requirement since quite some time for Ansible Galaxy. But the requirement was introduced after this role already existed for quite some time. So please update the name of the role in your playbook accordingly!
+- remove support for `Ubuntu 18.04` (reached EOL)
+
+MOLECULE
+
+- add `verify` step
+- use `generic/ubuntu2204` VM image instead of `alvistack/ubuntu-22.04`
+- move `memory` and `cpus` properties to hosts
+- rename scenario `kvm` to `default`
+- rename `test-harden-linux-ubuntu1804-openntpd` to `test-harden-linux-ubuntu2204-openntpd`
+- adjust `verifier`
+- fix link in `defaults/main.yml`
+- add information about Molecule test to `README.md`
+
+OTHER
+
+- fix various `ansible-lint` issues
 - `.ansible-lint`: remove `role-name` / add `name[template]`
-- `molecule/default/molecule.yml`: use `generic/ubuntu2204` VM image instead of `alvistack/ubuntu-22.04`
-- `molecule/default/molecule.yml`: move `memory` and `cpus` properties to hosts
-- `molecule/default/molecule.yml`: rename scenario `kvm` to `default`
-- `molecule/default/molecule.yml`: rename `test-harden-linux-ubuntu1804-openntpd` to `test-harden-linux-ubuntu2204-openntpd`
-- `molecule/default/molecule.yml`: adjust `verifier`
-- `defaults/main.yml`: fix link
-- `README.md`: add information about Molecule test
 
 ## Installation
 
