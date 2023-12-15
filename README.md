@@ -1,5 +1,4 @@
-ansible-role-harden-linux
-=========================
+# ansible-role-harden-linux
 
 This Ansible role was mainly created for my blog series [Kubernetes the not so hard way with Ansible - Harden the instances](https://www.tauceti.blog/posts/kubernetes-the-not-so-hard-way-with-ansible-harden-the-instances/). But it can be used also standalone of course to harden Linux. It has the following features:
 
@@ -12,18 +11,58 @@ This Ansible role was mainly created for my blog series [Kubernetes the not so h
 - Install sshguard and adjust whitelist
 - Optional: Install/configure Network Time Synchronization (NTP) e.g. `openntpd`/`ntp`/`systemd-timesyncd`
 
-Versions
---------
+## Versions
 
 I tag every release and try to stay with [semantic versioning](http://semver.org). If you want to use the role I recommend to checkout the latest tag. The master branch is basically development while the tags mark stable releases. But in general I try to keep master in good shape too.
 
-Changelog
----------
+## Changelog
 
-see [CHANGELOG.md](https://github.com/githubixx/ansible-role-harden-linux/blob/master/CHANGELOG.md)
+**Change history:**
 
-Role Variables
---------------
+See full  [CHANGELOG.md](https://github.com/githubixx/ansible-role-harden-linux/blob/master/CHANGELOG.md)
+
+**Recent changes:**
+
+### v7.1.0
+
+- introduce `harden_linux_absent_packages` variable
+- introduce `harden_linux_systemd_resolved_settings` variable
+
+### v7.0.0
+
+- **BREAKING**: `meta/main.yml`: change `role_name` from `harden-linux` to `harden_linux`. This is a requirement since quite some time for Ansible Galaxy. But the requirement was introduced after this role already existed for quite some time. So please update the name of the role in your playbook accordingly!
+- **BREAKING**: remove support for Ubuntu 18.04 (reached EOL)
+- Molecule: add `verify` step
+- Fix various `ansible-lint` issues
+- `.ansible-lint`: remove `role-name` / add `name[template]`
+- `molecule/default/molecule.yml`: use `generic/ubuntu2204` VM image instead of `alvistack/ubuntu-22.04`
+- `molecule/default/molecule.yml`: move `memory` and `cpus` properties to hosts
+- `molecule/default/molecule.yml`: rename scenario `kvm` to `default`
+- `molecule/default/molecule.yml`: rename `test-harden-linux-ubuntu1804-openntpd` to `test-harden-linux-ubuntu2204-openntpd`
+- `molecule/default/molecule.yml`: adjust `verifier`
+- `defaults/main.yml`: fix link
+- `README.md`: add information about Molecule test
+
+## Installation
+
+- Directly download from Github (Change into Ansible role directory before cloning. You can figure out the role path by using `ansible-config dump | grep DEFAULT_ROLES_PATH` command):
+`git clone https://github.com/githubixx/ansible-role-harden-linux.git githubixx.harden_linux`
+
+- Via `ansible-galaxy` command and download directly from Ansible Galaxy:
+`ansible-galaxy install role githubixx.harden_linux`
+
+- Create a `requirements.yml` file with the following content (this will download the role from Github) and install with
+`ansible-galaxy role install -r requirements.yml` (change `version` if needed):
+
+```yaml
+---
+roles:
+  - name: githubixx.harden_linux
+    src: https://github.com/githubixx/ansible-role-harden-linux.git
+    version: v7.1.0
+```
+
+## Role Variables
 
 The following variables don't have defaults. You need to specify them either in a file in `group_vars` or `host_vars` directory. E.g. if this settings should be used only for one specific host create a file for that host called like the FQDN of that host (e.g `host_vars/your-server.example.tld`) and put the variables with the correct values there. If you want to apply this variables to a host group create a file `group_vars/your-group.yml` e.g. Replace `your-group` with the host group name which you created in the Ansible `hosts` file (do not confuse with /etc/hosts...). `harden_linux_deploy_user_public_keys` loads all the public SSH key files specified in the list from your local hard disk. So at least you need to specify:
 
@@ -259,7 +298,7 @@ harden_linux_files_to_delete:
   - "/root/.pw"
 ```
 
-If `systemd-resolved` is used for DNS resolution its behavior can be adjusted with `harden_linux_systemd_resolved_settings`. A systemd drop-in configuration will be created in "/etc/systemd/resolved.conf.d/99-override.conf" and the settings specified added there.
+If `systemd-resolved` is used for DNS resolution its behavior can be adjusted with `harden_linux_systemd_resolved_settings`. By default this variable is not specified. A systemd drop-in configuration will be created in `/etc/systemd/resolved.conf.d/99-override.conf` and the settings specified added there.
 
 Note: If a setting in `/etc/systemd/resolved.conf` is already set (e.g. `DNS=8.8.8.8`) then setting `DNS=9.9.9.9` below will add up. That means the final setting will be `DNS=8.8.8.8 9.9.9.9`. If you don't what that you need to "unset" the value first and then add the value you want to have. E.g.:
 
@@ -269,9 +308,9 @@ harden_linux_systemd_resolved_settings:
   - DNS=9.9.9.9
 ```
 
-Another example:
+While the Google DNS server (`8.8.8.8`, `8.8.4.4`) offer speedy DNS lookups it's of course another possibility Google can spy on you. So using some other DNS servers should be at least something to think about. But there is one more thing and that's encrypting DNS requests. One way that `systemd-resolved` supports is `DNSOverTLS`. [Quad9 (9.9.9.9/149.112.112.112)](https://quad9.net) supports it and [Cloudflare (1.1.1.1/1.0.0.1)](https://developers.cloudflare.com/1.1.1.1/encryption/dns-over-tls/) support `DNSOverTLS`. So the following `systemd-resolved` settings configure Quad9 and Cloudflare DNS for IPv4 and IPv6. The setting `DNSOverTLS=opportunistic` uses `DNSOverTLS` if the DNS server supports it and falls back to regular unencrypted DNS if not supported (also see [resolved.conf.5](https://man.archlinux.org/man/resolved.conf.5)):
 
-```
+```yaml
 harden_linux_systemd_resolved_settings:
   - DNS=9.9.9.9 1.1.1.1 2606:4700:4700::1111 2620:fe::fe
   - FallbackDNS=149.112.112.112 1.0.0.1 2620:fe::9 2606:4700:4700::1001
@@ -295,8 +334,7 @@ For Archlinux:
 harden_linux_archlinux_update_cache: true
 ```
 
-Example Playbook
-----------------
+## Example Playbook
 
 If you installed the role via `ansible-galaxy install githubixx.harden_linux` then include the role into your playbook like in this example:
 
@@ -306,8 +344,7 @@ If you installed the role via `ansible-galaxy install githubixx.harden_linux` th
     - githubixx.harden_linux
 ```
 
-Testing
--------
+## Testing
 
 This role has a small test setup that is created using [Molecule](https://github.com/ansible-community/molecule), libvirt (vagrant-libvirt) and QEMU/KVM. Please see my blog post [Testing Ansible roles with Molecule, libvirt (vagrant-libvirt) and QEMU/KVM](https://www.tauceti.blog/posts/testing-ansible-roles-with-molecule-libvirt-vagrant-qemu-kvm/) how to setup. The test configuration is [here](https://github.com/githubixx/ansible-role-runc/tree/master/molecule/default).
 
@@ -329,12 +366,10 @@ To clean up run
 molecule destroy
 ```
 
-License
--------
+## License
 
 GNU GENERAL PUBLIC LICENSE Version 3
 
-Author Information
-------------------
+## Author Information
 
 [www.tauceti.blog](https://www.tauceti.blog)
