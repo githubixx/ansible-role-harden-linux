@@ -19,7 +19,7 @@ platforms:
       - auto_config: true
         network_name: private_network
         type: static
-        ip: 192.168.10.10
+        ip: 10.66.66.10
   - name: test-harden-linux-ubuntu2004-ntp
     box: generic/ubuntu2004
     memory: 2048
@@ -30,7 +30,7 @@ platforms:
       - auto_config: true
         network_name: private_network
         type: static
-        ip: 192.168.10.20
+        ip: 10.66.66.20
   - name: test-harden-linux-ubuntu2204-openntpd
     box: generic/ubuntu2204
     memory: 2048
@@ -41,7 +41,7 @@ platforms:
       - auto_config: true
         network_name: private_network
         type: static
-        ip: 192.168.10.30
+        ip: 10.66.66.30
   - name: test-harden-linux-arch-timesyncd
     box: archlinux/archlinux
     memory: 2048
@@ -52,7 +52,7 @@ platforms:
       - auto_config: true
         network_name: private_network
         type: static
-        ip: 192.168.10.40
+        ip: 10.66.66.40
   - name: test-harden-linux-ubuntu2204-timesyncd
     box: generic/ubuntu2204
     memory: 2048
@@ -63,7 +63,7 @@ platforms:
       - auto_config: true
         network_name: private_network
         type: static
-        ip: 192.168.10.50
+        ip: 10.66.66.50
 
 provisioner:
   name: ansible
@@ -124,6 +124,8 @@ provisioner:
           "^pool 1": "pool 1.ubuntu.pool.ntp.org iburst"
           "^pool 2": "pool 2.ubuntu.pool.ntp.org iburst"
           "^pool 3": "pool 3.ubuntu.pool.ntp.org iburst"
+        harden_linux_absent_packages:
+          - dosfstools
       test-harden-linux-ubuntu2204-openntpd:
         harden_linux_ntp: "openntpd"
         harden_linux_ntp_settings:
@@ -143,6 +145,13 @@ provisioner:
           "^#NTP=": "NTP=ntp.ubuntu.com"
         harden_linux_optional_packages:
           - mlocate
+        harden_linux_systemd_resolved_settings:
+          - DNS=
+          - DNS=9.9.9.9 1.1.1.1 2606:4700:4700::1111 2620:fe::fe
+          - FallbackDNS=
+          - FallbackDNS=149.112.112.112 1.0.0.1 2620:fe::9 2606:4700:4700::1001
+          - DNSOverTLS=
+          - DNSOverTLS=opportunistic
 
 scenario:
   name: default

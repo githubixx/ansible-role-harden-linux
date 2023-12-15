@@ -39,3 +39,8 @@
   ansible.builtin.service:
     name: sshguard
     state: restarted
+
+- name: Restart systemd-resolved
+  ansible.builtin.service:
+    name: systemd-resolved
+    state: restarted

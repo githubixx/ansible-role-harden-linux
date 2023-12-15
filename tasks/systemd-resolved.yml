@@ -1,0 +1,18 @@
+---
+- name: (systemd-resolved) Create directory for drop-in configuration
+  ansible.builtin.file:
+    path: "/etc/systemd/resolved.conf.d"
+    state: "directory"
+    owner: "root"
+    group: "root"
+    mode: "0755"
+
+- name: (systemd-resolved) Update systemd-resolved drop-in replacement
+  ansible.builtin.template:
+    src: "etc/systemd/resolved.conf.d/99-override.conf.j2"
+    dest: "/etc/systemd/resolved.conf.d/99-override.conf"
+    owner: "root"
+    group: "root"
+    mode: "0644"
+  notify:
+    - Restart systemd-resolved

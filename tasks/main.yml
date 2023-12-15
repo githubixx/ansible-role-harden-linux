@@ -35,6 +35,16 @@
   tags:
     - install
 
+- name: "Uninstall OS packages"
+  ansible.builtin.package:
+    pkg: "{{ harden_linux_absent_packages }}"
+    state: absent
+  when: harden_linux_absent_packages is defined
+  retries: 2
+  delay: 5
+  tags:
+    - uninstall
+
 - name: Ensure files absent
   ansible.builtin.file:
     path: "{{ file_to_delete }}"
@@ -114,6 +124,16 @@
         - sshguard
   tags:
     - sshguard
+
+- name: Setup systemd-resolved
+  ansible.builtin.include_tasks:
+    file: "systemd-resolved.yml"
+    apply:
+      tags:
+        - systemd-resolved
+  when: harden_linux_systemd_resolved_settings is defined
+  tags:
+    - systemd-resolved
 
 - name: Change root password
   ansible.builtin.user:
