@@ -7,18 +7,6 @@
     group: "root"
     mode: "0755"
 
-#- name: (systemd-resolved) Update systemd-resolved drop-in replacement
-#  ansible.builtin.copy:
-#    content: |
-#      [Resolve]
-#      {{ harden_linux_systemd_resolved_settings | join('\n') }}
-#    dest: "/etc/systemd/resolved.conf.d/99-override.conf"
-#    owner: "root"
-#    group: "root"
-#    mode: "0644"
-#  notify:
-#    - Restart systemd-resolved
-
 - name: (systemd-resolved) Update systemd-resolved drop-in replacement
   ansible.builtin.template:
     src: "etc/systemd/resolved.conf.d/99-override.conf.j2"
