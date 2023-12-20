@@ -1,16 +1,16 @@
 # ansible-role-harden-linux
 
-This Ansible role was mainly created for my blog series [Kubernetes the not so hard way with Ansible - Harden the instances](https://www.tauceti.blog/posts/kubernetes-the-not-so-hard-way-with-ansible-harden-the-instances/). But it can be used also standalone of course to harden Linux. It has the following features:
+This Ansible role was mainly created for my blog series [Kubernetes the not so hard way with Ansible - Harden the instances](https://www.tauceti.blog/posts/kubernetes-the-not-so-hard-way-with-ansible-harden-the-instances/). But it can be used also standalone of course to harden Linux. It has the following features (some of them are optional):
 
-- Optional: Change root password
 - Add a regular/deploy user used for administration (e.g. for Ansible or login via SSH)
 - Adjust APT update intervals
 - Setup `UFW` firewall and allow only SSH access by default (add more rules/allowed networks if you like)
 - Adjust security related sysctl settings
 - Adjust `sshd` settings e.g disable sshd password authentication, disable sshd root login and disable sshd PermitTunnel
 - Install `sshguard` and adjust whitelist
-- Optional: Install/configure `Network Time Synchronization` (NTP) e.g. `openntpd`/`ntp`/`systemd-timesyncd`
-- Optional: Change `systemd-resolved` configuration
+- Change root password
+- Install/configure `Network Time Synchronization` (NTP) e.g. `openntpd`/`ntp`/`systemd-timesyncd`
+- Change `systemd-resolved` configuration
 
 ## Versions
 
@@ -83,28 +83,32 @@ roles:
 
 ## Role Variables
 
-The following variables don't have defaults. You need to specify them either in a file in `group_vars` or `host_vars` directory. E.g. if this settings should be used only for one specific host create a file for that host called like the FQDN of that host (e.g `host_vars/your-server.example.tld`) and put the variables with the correct values there. If you want to apply this variables to a host group create a file `group_vars/your-group.yml` e.g. Replace `your-group` with the host group name which you created in the Ansible `hosts` file (do not confuse with /etc/hosts...). `harden_linux_deploy_user_public_keys` loads all the public SSH key files specified in the list from your local hard disk. So at least you need to specify:
+The following variables don't have defaults. You need to specify them either in a file in `group_vars` or `host_vars` directory. E.g. if this settings should be used only for one specific host create a file for that host called like the FQDN of that host (e.g `host_vars/your-server.example.tld`) and put the variables with the correct values there. If you want to apply this variables to a host group create a file `group_vars/your-group.yml` e.g. Replace `your-group` with the host group name which you created in the Ansible `hosts` file (do not confuse with /etc/hosts...).
 
-```yaml
-# This is optional. If not specified "root" account password won't be changed.
-harden_linux_root_password: your_encrypted_password_here
-
-harden_linux_deploy_user: deploy
-harden_linux_deploy_user_password: your_encrypted_password_here
-harden_linux_deploy_user_home: /home/deploy
-harden_linux_deploy_user_public_keys:
-  - /home/your_user/.ssh/id_rsa.pub
-```
-
-With `harden_linux_root_password` (optional as mentioned above) and `harden_linux_deploy_user_password` we specify the password for the `root` user and the `deploy` user. Ansible won't encrypt the password for you. How to create an encrypted password is described in the [Ansible FAQs](http://docs.ansible.com/ansible/latest/reference_appendices/faq.html#how-do-i-generate-encrypted-passwords-for-the-user-module). But as Ansible is installed anyways the most easiest way is probably the following command:
+If you want to set or change the password of the `root` user set `harden_linux_root_password` variable. This is optional. It expects an encrypted password. Ansible won't encrypt the password for you. How to create an encrypted password is described in the [Ansible FAQs](http://docs.ansible.com/ansible/latest/reference_appendices/faq.html#how-do-i-generate-encrypted-passwords-for-the-user-module). But as Ansible is installed anyways the easiest way is most probably the following command:
 
 ```bash
 ansible localhost -m debug -a "msg={{ 'mypassword' | password_hash('sha512', 'mysecretsalt') }}"
 ```
 
+To install a user that can execute commands with `sudo` without password set the following variables:
+
+```yaml
+harden_linux_deploy_user: "a_username"
+harden_linux_deploy_user_password: "a_password"
+harden_linux_deploy_user_home: "/home/a_user"
+harden_linux_deploy_user_uid: "9999"
+harden_linux_deploy_user_gid: "9999"
+harden_linux_deploy_user_shell: "/bin/bash"
+```
+
 `harden_linux_deploy_user` specifies the user we want to use to login at the remote host. As already mentioned the `harden_linux` role will disable root user login via SSH for a good reason. So a different user is needed. This user will get "sudo" permission which is need for Ansible (and/or yourself of course) to do it's work.
 
-`harden_linux_deploy_user_public_keys` specifies a list of public SSH key files you want to add to `$HOME/.ssh/authorized_keys` of the deploy user on the remote host. If you specify `/home/deploy/.ssh/id_rsa.pub` e.g. as a value here the content of that **local** file will be added to `$HOME/.ssh/authorized_keys` of the deploy user on the remote host.
+In  `harden_linux_deploy_user_password` the user's encrypted password stored. Same applies as for `harden_linux_root_password` regarding how to create an encrypted password.
+
+The user's $HOME directory is specified in `harden_linux_root_password`. For the UID and GID set `harden_linux_deploy_user_uid` and `harden_linux_deploy_user_gid`. **Note**: If the user already exists but has a different home directory, UID and/or GID it will be changed according to the settings above! This also applies to `harden_linux_deploy_user_shell` which specifies the shell the user should use after login e.g.
+
+`harden_linux_deploy_user_public_keys` specifies a list of public SSH key files you want to add to `$HOME/.ssh/authorized_keys` of the deploy user on the remote host. If you specify `/home/deploy/.ssh/id_rsa.pub` e.g. as a value here the content of that **local** file (present on the Ansible controller node) will be added to `$HOME/.ssh/authorized_keys` of the deploy user on the remote host.
 
 `harden_linux_optional_packages` (before version `v6.0.0` of this role this variable was called `harden_linux_required_packages`) specifies additional/optional packages to install on the remote host. By default this variable is not specified. E.g.:
 
@@ -327,12 +331,16 @@ harden_linux_systemd_resolved_settings:
   - DNS=9.9.9.9
 ```
 
-While the Google DNS server (`8.8.8.8`, `8.8.4.4`) offer speedy DNS lookups it's of course another possibility Google can spy on you. So using some other DNS servers should be at least something to think about. But there is one more thing and that's encrypting DNS requests. One way that `systemd-resolved` supports is `DNSOverTLS`. [Quad9 (9.9.9.9/149.112.112.112)](https://quad9.net) supports it and [Cloudflare (1.1.1.1/1.0.0.1)](https://developers.cloudflare.com/1.1.1.1/encryption/dns-over-tls/) support `DNSOverTLS`. So the following `systemd-resolved` settings configure Quad9 and Cloudflare DNS for IPv4 and IPv6. The setting `DNSOverTLS=opportunistic` uses `DNSOverTLS` if the DNS server supports it and falls back to regular unencrypted DNS if not supported (also see [resolved.conf.5](https://man.archlinux.org/man/resolved.conf.5)):
+While the Google DNS server (`8.8.8.8`, `8.8.4.4`) offer speedy DNS lookups it's of course another possibility Google can spy on you. So using some other DNS servers should be at least something to think about. But there is one more thing and that's encrypting DNS requests. One way that `systemd-resolved` supports is `DNSOverTLS`. [Quad9 (9.9.9.9/149.112.112.112)](https://quad9.net) and [Cloudflare (1.1.1.1/1.0.0.1)](https://developers.cloudflare.com/1.1.1.1/encryption/dns-over-tls/) support `DNSOverTLS`.  
+So the following `systemd-resolved` settings configure Quad9 and Cloudflare DNS for IPv4 and IPv6. The setting `DNSOverTLS=opportunistic` uses `DNSOverTLS` if the DNS server supports it and falls back to regular unencrypted DNS if not supported (also see [resolved.conf.5](https://man.archlinux.org/man/resolved.conf.5)):
 
 ```yaml
 harden_linux_systemd_resolved_settings:
+  - DNS=
   - DNS=9.9.9.9 1.1.1.1 2606:4700:4700::1111 2620:fe::fe
+  - FallbackDNS=
   - FallbackDNS=149.112.112.112 1.0.0.1 2620:fe::9 2606:4700:4700::1001
+  - DNSOverTLS=
   - DNSOverTLS=opportunistic
 ```
 

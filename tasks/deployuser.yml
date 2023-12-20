@@ -4,24 +4,34 @@
     pkg: "sudo"
     state: present
 
+- name: Add deploy user's group
+  when:
+    - harden_linux_deploy_group != "root"
+  ansible.builtin.group:
+    name: "{{ harden_linux_deploy_group }}"
+    state: present
+    gid: "{{ harden_linux_deploy_group_gid | default(omit) }}"
+
 - name: Add deploy user
+  when:
+    - harden_linux_deploy_user != "root"
   ansible.builtin.user:
     name: "{{ harden_linux_deploy_user }}"
-    password: "{{ harden_linux_deploy_user_password }}"
-    uid: "{{ harden_linux_deploy_user_uid }}"
-    shell: "{{ harden_linux_deploy_user_shell }}"
-    home: "{{ harden_linux_deploy_user_home }}"
-  tags:
-    - user
+    state: present
+    shell: "{{ harden_linux_deploy_user_shell | default(omit) }}"
+    create_home: "{{ harden_linux_deploy_user_home is defined }}"
+    home: "{{ harden_linux_deploy_user_home | default(omit) }}"
+    uid: "{{ harden_linux_deploy_user_uid | default(omit) }}"
+    group: "{{ harden_linux_deploy_group }}"
+    password: "{{ harden_linux_deploy_user_password | default(omit) }}"
 
 - name: Add authorized keys for deploy user
+  when:
+    - harden_linux_deploy_user_public_keys is defined
   ansible.posix.authorized_key:
     user: "{{ harden_linux_deploy_user }}"
     key: "{{ lookup('file', item) }}"
   loop: "{{ harden_linux_deploy_user_public_keys }}"
-  when: harden_linux_deploy_user_public_keys is defined
-  tags:
-    - user
 
 - name: "Ensure deploy user present in /etc/sudoers.d/{{ harden_linux_deploy_user }}"
   ansible.builtin.template:
@@ -30,15 +40,9 @@
     owner: "root"
     group: "root"
     mode: "0400"
-  tags:
-    - user
-    - sudo
 
 - name: Ensure deploy user is absent in /etc/sudoers
   ansible.builtin.lineinfile:
     dest: "/etc/sudoers"
     regexp: "^{{ harden_linux_deploy_user }} ALL"
     state: absent
-  tags:
-    - user
-    - sudo
