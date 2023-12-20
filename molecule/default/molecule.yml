@@ -76,11 +76,6 @@ provisioner:
   inventory:
     group_vars:
       all:
-        harden_linux_deploy_user: deployer
-        harden_linux_deploy_user_password: "{{ lookup('file', 'myuserpassword_hash') }}" # mypassword
-        harden_linux_deploy_user_home: /home/deployer
-        harden_linux_deploy_user_public_keys:
-          - "mykey.pub"
         harden_linux_sshd_settings:
           "^PasswordAuthentication": "PasswordAuthentication yes"
           "^X11Forwarding": "X11Forwarding no"
@@ -111,12 +106,24 @@ provisioner:
           - "10.0.0.0/8"
     host_vars:
       test-harden-linux-ubuntu2004-timesyncd:
+        harden_linux_deploy_group: "deployer"
+        harden_linux_deploy_user: "deployer"
+        harden_linux_deploy_user_password: "{{ lookup('file', 'myuserpassword_hash') }}" # mypassword
+        harden_linux_deploy_user_home: "/home/deployer"
+        harden_linux_deploy_user_shell: "/bin/bash"
+        harden_linux_deploy_user_public_keys:
+          - "mykey.pub"
         harden_linux_ntp: "systemd-timesyncd"
         harden_linux_ntp_settings:
           "^#NTP=": "NTP=ntp.ubuntu.com"
         harden_linux_optional_packages:
           - mlocate
       test-harden-linux-ubuntu2004-ntp:
+        harden_linux_deploy_group: "deployer"
+        harden_linux_deploy_user: "deployer"
+        harden_linux_deploy_user_home: "/home/deployer"
+        harden_linux_deploy_user_public_keys:
+          - "mykey.pub"
         harden_linux_root_password: "{{ lookup('file', 'myuserpassword_hash') }}" # mypassword
         harden_linux_ntp: "ntp"
         harden_linux_ntp_settings:
@@ -127,6 +134,13 @@ provisioner:
         harden_linux_absent_packages:
           - dosfstools
       test-harden-linux-ubuntu2204-openntpd:
+        harden_linux_deploy_group: "deployer"
+        harden_linux_deploy_group_gid: "9999"
+        harden_linux_deploy_user: "deployer"
+        harden_linux_deploy_user_uid: "9998"
+        harden_linux_deploy_user_password: "{{ lookup('file', 'myuserpassword_hash') }}" # mypassword
+        harden_linux_deploy_user_home: "/home/deployer"
+        harden_linux_deploy_user_shell: "/bin/bash"
         harden_linux_ntp: "openntpd"
         harden_linux_ntp_settings:
           "^servers 0": "servers 0.debian.pool.ntp.org"
@@ -134,6 +148,15 @@ provisioner:
           "^servers 2": "servers 2.debian.pool.ntp.org"
           "^servers 3": "servers 3.debian.pool.ntp.org"
       test-harden-linux-arch-timesyncd:
+        harden_linux_deploy_group: "deployer"
+        harden_linux_deploy_group_gid: "9999"
+        harden_linux_deploy_user: "deployer"
+        harden_linux_deploy_user_uid: "9998"
+        harden_linux_deploy_user_password: "{{ lookup('file', 'myuserpassword_hash') }}" # mypassword
+        harden_linux_deploy_user_home: "/home/deployer"
+        harden_linux_deploy_user_shell: "/bin/bash"
+        harden_linux_deploy_user_public_keys:
+          - "mykey.pub"
         harden_linux_root_password: "{{ lookup('file', 'myuserpassword_hash') }}" # mypassword
         harden_linux_ntp: "systemd-timesyncd"
         harden_linux_optional_packages:

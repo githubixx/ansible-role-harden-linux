@@ -1,7 +1,44 @@
 ---
-# Some default settings for deploy user
-harden_linux_deploy_user_uid: 9999
-harden_linux_deploy_user_shell: "/bin/bash"
+# If you want to set or change the password of the "root" user set this variable.
+#
+# The encrypted password can be created with the following command:
+# ansible localhost -m debug -a "msg={{ 'mypassword' | password_hash('sha512', 'mysecretsalt') }}"
+#
+# harden_linux_root_password: "a_password"
+
+# Group name of deploy user. This is mandatory if "harden_linux_deploy_user"
+# is also set.
+# harden_linux_deploy_group: "a_group"
+
+# The GID of the group name specified in "harden_linux_deploy_group". If not
+# specified the next available GID from "/etc/login.defs" will be taken
+# (see "GID_MIN/GID_MAX" setting in that file).
+# harden_linux_deploy_group_gid: 9999
+
+# Name of deploy user. When not set no user will be created.
+# harden_linux_deploy_user: "a_username"
+
+# Encrypted password for deploy user. Only relevant if "harden_linux_deploy_user"
+# is set. See "harden_linux_root_password" how to create an encrypted password.
+# harden_linux_deploy_user_password: "a_password"
+
+# HOME directory for deploy user. Only relevant when "harden_linux_deploy_user"
+# is set.
+# harden_linux_deploy_user_home: "/home/a_user"
+
+# List of public keys for deploy user. Only relevant when "harden_linux_deploy_user"
+# is set. The public keys will be added to the "authorized_keys" file of the deploy
+# user.
+# harden_linux_deploy_user_public_keys:
+#  - /home/a_username/.ssh/id_rsa.pub
+
+# UID for deploy user. Only relevant when "harden_linux_deploy_user" is set.
+# If not specified the next available GID from "/etc/login.defs" will be taken
+# (see "UID_MIN/UID_MAX" setting in that file).
+# harden_linux_deploy_user_uid: "9999"
+
+# Shell for deploy user. Only relevant when "harden_linux_deploy_user" is set.
+# harden_linux_deploy_user_shell: "/bin/bash"
 
 # List of files that should be absent on the target host
 harden_linux_files_to_delete:
@@ -85,7 +122,7 @@ harden_linux_files_to_delete:
 # on your own by adding a group or host variable called "sysctl_settings_user".
 # "sysctl_settings" and "sysctl_settings_user" will get merged by a
 # task. You can also override a setting defined in "sysctl_settings"
-# by specifing a key with the same name and a different value in
+# by specifying a key with the same name and a different value in
 # "sysctl_settings_user".
 #
 # For more information about this settings have a look at:
@@ -143,14 +180,14 @@ harden_linux_sysctl_settings:
 # The "key" here is a regex of a setting you want to replace and the value is
 # the setting name + the setting value. E.g. we want to replace the line
 # "Port 22" with "Port 22222". The regex (the key) would be "^Port " which
-# means "search for a line in "/etc/ssh/sshd_config" that begins with 'Port'
+# means "search for a line in "/etc/ssh/sshd_config" that begins with 'Port '
 # and replace the whole line with 'Port 22222'". This enables you to replace
 # every setting in "sshd_config".
 harden_linux_sshd_settings:
   "^PasswordAuthentication": "PasswordAuthentication no"  # Disable password authentication
   "^PermitRootLogin": "PermitRootLogin no"                # Disable SSH root login
   "^PermitTunnel": "PermitTunnel no"                      # Disable tun(4) device forwarding
-  "^Port ": "Port 22"                                     # Set SSHd port
+  "^Port ": "Port 22"                                     # Set sshd port
 
 # When this variable is set, settings for "systemd-resolved" will be changed.
 # A systemd drop-in configuration will be created in "/etc/systemd/resolved.conf.d/99-override.conf"
@@ -194,7 +231,7 @@ harden_linux_ufw_defaults:
 # Disable/enable UFW logging
 harden_linux_ufw_logging: 'off'
 
-# sshgard whitelist: sshguard blocks IPs for some time if
+# sshguard whitelist: sshguard blocks IPs for some time if
 # to many SSH login attempts fail. Specify IP (ranges) that
 # should not be blocked.
 harden_linux_sshguard_whitelist:

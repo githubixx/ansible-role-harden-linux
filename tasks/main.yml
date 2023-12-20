@@ -65,6 +65,9 @@
     - ntpd
 
 - name: Setup deploy user
+  when:
+    - harden_linux_deploy_group is defined
+    - harden_linux_deploy_user is defined
   ansible.builtin.include_tasks:
     file: "deployuser.yml"
     apply:
