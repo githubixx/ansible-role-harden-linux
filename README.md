@@ -24,6 +24,18 @@ See full  [CHANGELOG.md](https://github.com/githubixx/ansible-role-harden-linux/
 
 **Recent changes:**
 
+### v8.0.0
+
+BREAKING/FEATURE
+
+- introduce `harden_linux_deploy_group` and `harden_linux_deploy_group_gid` variables. Both are optional. But at least `harden_linux_deploy_group` must be specified if `harden_linux_deploy_user` is also set. If `harden_linux_deploy_group` is set to `root` nothing will be changed.
+- if `harden_linux_deploy_user` is set to `root` nothing will be changed.
+- `harden_linux_deploy_user` is now optional. If not set, no user will be setup. Also all variables that start with `harden_linux_deploy_user_` are only used if `harden_linux_deploy_user` is specified. Additionally `harden_linux_deploy_user_home` variable was added. `harden_linux_deploy_user_shell`, `harden_linux_deploy_user_home`, `harden_linux_deploy_user_uid` and `harden_linux_deploy_user_password` are now optional. $HOME directory of `harden_linux_deploy_user` is only created if `harden_linux_deploy_user_home` is set.
+
+MOLECULE
+
+- update test scenario to reflect deploy user/group changes
+
 ### v7.1.0
 
 FEATURE
