@@ -32,6 +32,7 @@ See full  [CHANGELOG.md](https://github.com/githubixx/ansible-role-harden-linux/
 
 - **MOLECULE**
   - use `alvistack` instead of `generic` Vagrant boxes
+  - use different IP addresses
 
 ### v8.0.0
 

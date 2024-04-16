@@ -8,6 +8,7 @@
 
 - **MOLECULE**
   - use `alvistack` instead of `generic` Vagrant boxes
+  - use different IP addresses
 
 ## v8.0.0
 
