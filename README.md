@@ -30,6 +30,9 @@ See full  [CHANGELOG.md](https://github.com/githubixx/ansible-role-harden-linux/
   - update comments about using `mkpasswd` instead of `ansible` to create encrypted password
   - Ubuntu: add autoremove task
 
+- **MOLECULE**
+  - use `alvistack` instead of `generic` Vagrant boxes
+
 ### v8.0.0
 
 - **BREAKING/FEATURE**
