@@ -1,54 +1,52 @@
 # Changelog
 
+## v8.1.0
+
+- **OTHER**
+  - update comments about using `mkpasswd` instead of `ansible` to create encrypted password
+  - Ubuntu: add autoremove task
+
 ## v8.0.0
 
-BREAKING/FEATURE
+- **BREAKING/FEATURE**
+  - introduce `harden_linux_deploy_group` and `harden_linux_deploy_group_gid` variables. Both are optional. But at least `harden_linux_deploy_group` must be specified if `harden_linux_deploy_user` is also set. If `harden_linux_deploy_group` is set to `root` nothing will be changed.
+  - if `harden_linux_deploy_user` is set to `root` nothing will be changed.
+  - `harden_linux_deploy_user` is now optional. If not set, no user will be setup. Also all variables that start with `harden_linux_deploy_user_` are only used if `harden_linux_deploy_user` is specified. Additionally `harden_linux_deploy_user_home` variable was added. `harden_linux_deploy_user_shell`, `harden_linux_deploy_user_home`, `harden_linux_deploy_user_uid` and `harden_linux_deploy_user_password` are now optional. $HOME directory of `harden_linux_deploy_user` is only created if `harden_linux_deploy_user_home` is set.
 
-- introduce `harden_linux_deploy_group` and `harden_linux_deploy_group_gid` variables. Both are optional. But at least `harden_linux_deploy_group` must be specified if `harden_linux_deploy_user` is also set. If `harden_linux_deploy_group` is set to `root` nothing will be changed.
-- if `harden_linux_deploy_user` is set to `root` nothing will be changed.
-- `harden_linux_deploy_user` is now optional. If not set, no user will be setup. Also all variables that start with `harden_linux_deploy_user_` are only used if `harden_linux_deploy_user` is specified. Additionally `harden_linux_deploy_user_home` variable was added. `harden_linux_deploy_user_shell`, `harden_linux_deploy_user_home`, `harden_linux_deploy_user_uid` and `harden_linux_deploy_user_password` are now optional. $HOME directory of `harden_linux_deploy_user` is only created if `harden_linux_deploy_user_home` is set.
-
-MOLECULE
-
-- update test scenario to reflect deploy user/group changes
+- **MOLECULE**
+  - update test scenario to reflect deploy user/group changes
 
 ## v7.1.0
 
-FEATURE
+- **FEATURE**
+  - introduce `harden_linux_absent_packages` variable
+  - introduce `harden_linux_systemd_resolved_settings` variable
 
-- introduce `harden_linux_absent_packages` variable
-- introduce `harden_linux_systemd_resolved_settings` variable
+- **MOLECULE**
+  - change IP addresses
 
-MOLECULE
-
-- change IP addresses
-
-OTHER
-
-- fix `ansible-lint` issues
+- **OTHER**
+  - fix `ansible-lint` issues
 
 ## v7.0.0
 
-BREAKING
-
-- `meta/main.yml`: change `role_name` from `harden-linux` to `harden_linux`. This is a requirement since quite some time for Ansible Galaxy. But the requirement was introduced after this role already existed for quite some time. So please update the name of the role in your playbook accordingly!
+- **BREAKING**
+  - `meta/main.yml`: change `role_name` from `harden-linux` to `harden_linux`. This is a requirement since quite some time for Ansible Galaxy. But the requirement was introduced after this role already existed for quite some time. So please update the name of the role in your playbook accordingly!
 - remove support for Ubuntu 18.04 (reached EOL)
 
-MOLECULE
+- **MOLECULE**
+  - add `verify` step
+  - use `generic/ubuntu2204` VM image instead of `alvistack/ubuntu-22.04`
+  - move `memory` and `cpus` properties to hosts
+  - rename scenario `kvm` to `default`
+  - rename `test-harden-linux-ubuntu1804-openntpd` to `test-harden-linux-ubuntu2204-openntpd`
+  - adjust `verifier`
+  - fix link in `defaults/main.yml`
+  - add information about Molecule test to `README.md`
 
-- add `verify` step
-- use `generic/ubuntu2204` VM image instead of `alvistack/ubuntu-22.04`
-- move `memory` and `cpus` properties to hosts
-- rename scenario `kvm` to `default`
-- rename `test-harden-linux-ubuntu1804-openntpd` to `test-harden-linux-ubuntu2204-openntpd`
-- adjust `verifier`
-- fix link in `defaults/main.yml`
-- add information about Molecule test to `README.md`
-
-OTHER
-
-- fix various `ansible-lint` issues
-- `.ansible-lint`: remove `role-name` / add `name[template]`
+- **OTHER**
+  - fix various `ansible-lint` issues
+  - `.ansible-lint`: remove `role-name` / add `name[template]`
 
 ## v6.2.0
 
