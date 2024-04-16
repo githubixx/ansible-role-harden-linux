@@ -24,55 +24,26 @@ See full  [CHANGELOG.md](https://github.com/githubixx/ansible-role-harden-linux/
 
 **Recent changes:**
 
+### v8.1.0
+
+- **OTHER**
+  - update comments about using `mkpasswd` instead of `ansible` to create encrypted password
+  - Ubuntu: add autoremove task
+  - update Github workflow
+
+- **MOLECULE**
+  - use `alvistack` instead of `generic` Vagrant boxes
+  - use different IP addresses
+
 ### v8.0.0
 
-BREAKING/FEATURE
+- **BREAKING/FEATURE**
+  - introduce `harden_linux_deploy_group` and `harden_linux_deploy_group_gid` variables. Both are optional. But at least `harden_linux_deploy_group` must be specified if `harden_linux_deploy_user` is also set. If `harden_linux_deploy_group` is set to `root` nothing will be changed.
+  - if `harden_linux_deploy_user` is set to `root` nothing will be changed.
+  - `harden_linux_deploy_user` is now optional. If not set, no user will be setup. Also all variables that start with `harden_linux_deploy_user_` are only used if `harden_linux_deploy_user` is specified. Additionally `harden_linux_deploy_user_home` variable was added. `harden_linux_deploy_user_shell`, `harden_linux_deploy_user_home`, `harden_linux_deploy_user_uid` and `harden_linux_deploy_user_password` are now optional. $HOME directory of `harden_linux_deploy_user` is only created if `harden_linux_deploy_user_home` is set.
 
-- introduce `harden_linux_deploy_group` and `harden_linux_deploy_group_gid` variables. Both are optional. But at least `harden_linux_deploy_group` must be specified if `harden_linux_deploy_user` is also set. If `harden_linux_deploy_group` is set to `root` nothing will be changed.
-- if `harden_linux_deploy_user` is set to `root` nothing will be changed.
-- `harden_linux_deploy_user` is now optional. If not set, no user will be setup. Also all variables that start with `harden_linux_deploy_user_` are only used if `harden_linux_deploy_user` is specified. Additionally `harden_linux_deploy_user_home` variable was added. `harden_linux_deploy_user_shell`, `harden_linux_deploy_user_home`, `harden_linux_deploy_user_uid` and `harden_linux_deploy_user_password` are now optional. $HOME directory of `harden_linux_deploy_user` is only created if `harden_linux_deploy_user_home` is set.
-
-MOLECULE
-
-- update test scenario to reflect deploy user/group changes
-
-### v7.1.0
-
-FEATURE
-
-- introduce `harden_linux_absent_packages` variable
-- introduce `harden_linux_systemd_resolved_settings` variable
-
-MOLECULE
-
-- change IP addresses
-
-OTHER
-
-- fix `ansible-lint` issues
-
-### v7.0.0
-
-BREAKING
-
-- `meta/main.yml`: change `role_name` from `harden-linux` to `harden_linux`. This is a requirement since quite some time for Ansible Galaxy. But the requirement was introduced after this role already existed for quite some time. So please update the name of the role in your playbook accordingly!
-- remove support for `Ubuntu 18.04` (reached EOL)
-
-MOLECULE
-
-- add `verify` step
-- use `generic/ubuntu2204` VM image instead of `alvistack/ubuntu-22.04`
-- move `memory` and `cpus` properties to hosts
-- rename scenario `kvm` to `default`
-- rename `test-harden-linux-ubuntu1804-openntpd` to `test-harden-linux-ubuntu2204-openntpd`
-- adjust `verifier`
-- fix link in `defaults/main.yml`
-- add information about Molecule test to `README.md`
-
-OTHER
-
-- fix various `ansible-lint` issues
-- `.ansible-lint`: remove `role-name` / add `name[template]`
+- **MOLECULE**
+  - update test scenario to reflect deploy user/group changes
 
 ## Installation
 
@@ -90,17 +61,17 @@ OTHER
 roles:
   - name: githubixx.harden_linux
     src: https://github.com/githubixx/ansible-role-harden-linux.git
-    version: v7.1.0
+    version: v8.1.0
 ```
 
 ## Role Variables
 
 The following variables don't have defaults. You need to specify them either in a file in `group_vars` or `host_vars` directory. E.g. if this settings should be used only for one specific host create a file for that host called like the FQDN of that host (e.g `host_vars/your-server.example.tld`) and put the variables with the correct values there. If you want to apply this variables to a host group create a file `group_vars/your-group.yml` e.g. Replace `your-group` with the host group name which you created in the Ansible `hosts` file (do not confuse with /etc/hosts...).
 
-If you want to set or change the password of the `root` user set `harden_linux_root_password` variable. This is optional. It expects an encrypted password. Ansible won't encrypt the password for you. How to create an encrypted password is described in the [Ansible FAQs](http://docs.ansible.com/ansible/latest/reference_appendices/faq.html#how-do-i-generate-encrypted-passwords-for-the-user-module). But as Ansible is installed anyways the easiest way is most probably the following command:
+If you want to set or change the password of the `root` user set `harden_linux_root_password` variable. This is optional. It expects an encrypted password. Ansible won't encrypt the password for you. How to create an encrypted password is described in the [Ansible FAQs](http://docs.ansible.com/ansible/latest/reference_appendices/faq.html#how-do-i-generate-encrypted-passwords-for-the-user-module). On Linux the following command is most probably the most reliable one:
 
 ```bash
-ansible localhost -m debug -a "msg={{ 'mypassword' | password_hash('sha512', 'mysecretsalt') }}"
+mkpasswd --method=sha-512
 ```
 
 To install a user that can execute commands with `sudo` without password set the following variables:

@@ -13,9 +13,18 @@
   tags:
     - apt
 
+- name: "({{ ansible_distribution }}) APT autoremove"
+  ansible.builtin.apt:
+    autoremove: true
+  retries: 2
+  delay: 5
+  tags:
+    - apt
+
 - name: "({{ ansible_distribution }}) Upgrade APT to the latest packages"
   ansible.builtin.apt:
     upgrade: safe
+    autoremove: true
   retries: 2
   delay: 5
   tags:

@@ -10,7 +10,7 @@ driver:
 
 platforms:
   - name: test-harden-linux-ubuntu2004-timesyncd
-    box: generic/ubuntu2004
+    box: alvistack/ubuntu-22.04
     memory: 2048
     cpus: 2
     groups:
@@ -19,9 +19,9 @@ platforms:
       - auto_config: true
         network_name: private_network
         type: static
-        ip: 10.66.66.10
+        ip: 172.16.10.10
   - name: test-harden-linux-ubuntu2004-ntp
-    box: generic/ubuntu2004
+    box: alvistack/ubuntu-20.04
     memory: 2048
     cpus: 2
     groups:
@@ -30,9 +30,9 @@ platforms:
       - auto_config: true
         network_name: private_network
         type: static
-        ip: 10.66.66.20
+        ip: 172.16.10.20
   - name: test-harden-linux-ubuntu2204-openntpd
-    box: generic/ubuntu2204
+    box: alvistack/ubuntu-22.04
     memory: 2048
     cpus: 2
     groups:
@@ -41,7 +41,7 @@ platforms:
       - auto_config: true
         network_name: private_network
         type: static
-        ip: 10.66.66.30
+        ip: 172.16.10.30
   - name: test-harden-linux-arch-timesyncd
     box: archlinux/archlinux
     memory: 2048
@@ -52,9 +52,9 @@ platforms:
       - auto_config: true
         network_name: private_network
         type: static
-        ip: 10.66.66.40
+        ip: 172.16.10.40
   - name: test-harden-linux-ubuntu2204-timesyncd
-    box: generic/ubuntu2204
+    box: alvistack/ubuntu-22.04
     memory: 2048
     cpus: 2
     groups:
@@ -63,7 +63,7 @@ platforms:
       - auto_config: true
         network_name: private_network
         type: static
-        ip: 10.66.66.50
+        ip: 172.16.10.50
 
 provisioner:
   name: ansible
