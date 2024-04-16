@@ -44,18 +44,6 @@ See full  [CHANGELOG.md](https://github.com/githubixx/ansible-role-harden-linux/
 - **MOLECULE**
   - update test scenario to reflect deploy user/group changes
 
-### v7.1.0
-
-- **FEATURE**
-  - introduce `harden_linux_absent_packages` variable
-  - introduce `harden_linux_systemd_resolved_settings` variable
-
-- **MOLECULE**
-  - change IP addresses
-
-- **OTHER**
-  - fix `ansible-lint` issues
-
 ## Installation
 
 - Directly download from Github (Change into Ansible role directory before cloning. You can figure out the role path by using `ansible-config dump | grep DEFAULT_ROLES_PATH` command):
