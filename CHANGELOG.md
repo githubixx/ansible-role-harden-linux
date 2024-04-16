@@ -5,6 +5,7 @@
 - **OTHER**
   - update comments about using `mkpasswd` instead of `ansible` to create encrypted password
   - Ubuntu: add autoremove task
+  - update Github workflow
 
 - **MOLECULE**
   - use `alvistack` instead of `generic` Vagrant boxes
