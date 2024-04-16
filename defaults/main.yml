@@ -2,7 +2,7 @@
 # If you want to set or change the password of the "root" user set this variable.
 #
 # The encrypted password can be created with the following command:
-# ansible localhost -m debug -a "msg={{ 'mypassword' | password_hash('sha512', 'mysecretsalt') }}"
+# mkpasswd --method=sha-512
 #
 # harden_linux_root_password: "a_password"
 
