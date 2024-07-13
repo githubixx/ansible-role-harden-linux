@@ -64,6 +64,17 @@ platforms:
         network_name: private_network
         type: static
         ip: 172.16.10.50
+  - name: test-harden-linux-ubuntu2404-timesyncd
+    box: alvistack/ubuntu-24.04
+    memory: 2048
+    cpus: 2
+    groups:
+      - timesyncd
+    interfaces:
+      - auto_config: true
+        network_name: private_network
+        type: static
+        ip: 172.16.10.60
 
 provisioner:
   name: ansible
@@ -162,6 +173,20 @@ provisioner:
         harden_linux_optional_packages:
           - mlocate
       test-harden-linux-ubuntu2204-timesyncd:
+        harden_linux_root_password: "{{ lookup('file', 'myuserpassword_hash') }}" # mypassword
+        harden_linux_ntp: "systemd-timesyncd"
+        harden_linux_ntp_settings:
+          "^#NTP=": "NTP=ntp.ubuntu.com"
+        harden_linux_optional_packages:
+          - mlocate
+        harden_linux_systemd_resolved_settings:
+          - DNS=
+          - DNS=9.9.9.9 1.1.1.1 2606:4700:4700::1111 2620:fe::fe
+          - FallbackDNS=
+          - FallbackDNS=149.112.112.112 1.0.0.1 2620:fe::9 2606:4700:4700::1001
+          - DNSOverTLS=
+          - DNSOverTLS=opportunistic
+      test-harden-linux-ubuntu2404-timesyncd:
         harden_linux_root_password: "{{ lookup('file', 'myuserpassword_hash') }}" # mypassword
         harden_linux_ntp: "systemd-timesyncd"
         harden_linux_ntp_settings:

@@ -1,5 +1,10 @@
 # Changelog
 
+## v8.2.0
+
+- **FEATURE**
+  - add support for Ubuntu 24.04
+
 ## v8.1.0
 
 - **OTHER**
