@@ -24,6 +24,11 @@ See full  [CHANGELOG.md](https://github.com/githubixx/ansible-role-harden-linux/
 
 **Recent changes:**
 
+## v8.2.0
+
+- **FEATURE**
+  - add support for Ubuntu 24.04
+
 ### v8.1.0
 
 - **OTHER**
