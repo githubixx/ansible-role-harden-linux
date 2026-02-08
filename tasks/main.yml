@@ -1,12 +1,13 @@
+---
 - name: Load required variables based on the OS type
   ansible.builtin.include_vars:
     file: "{{ item }}"
   with_first_found:
-    - "{{ ansible_distribution | lower }}-{{ ansible_distribution_major_version }}.yml"
-    - "{{ ansible_distribution | lower }}-{{ ansible_distribution_version }}.yml"
-    - "{{ ansible_distribution | lower }}-{{ ansible_distribution_release }}.yml"
-    - "{{ ansible_distribution | lower }}.yml"
-    - "{{ ansible_os_family | lower }}.yml"
+    - "{{ ansible_facts['distribution'] | lower }}-{{ ansible_facts['distribution_major_version'] }}.yml"
+    - "{{ ansible_facts['distribution'] | lower }}-{{ ansible_facts['distribution_version'] }}.yml"
+    - "{{ ansible_facts['distribution'] | lower }}-{{ ansible_facts['distribution_release'] }}.yml"
+    - "{{ ansible_facts['distribution'] | lower }}.yml"
+    - "{{ ansible_facts['os_family'] | lower }}.yml"
   tags:
     - always
 
@@ -17,11 +18,11 @@
       tags:
         - install
   with_first_found:
-    - "setup-{{ ansible_distribution | lower }}-{{ ansible_distribution_major_version }}.yml"
-    - "setup-{{ ansible_distribution | lower }}-{{ ansible_distribution_version }}.yml"
-    - "setup-{{ ansible_distribution | lower }}-{{ ansible_distribution_release }}.yml"
-    - "setup-{{ ansible_distribution | lower }}.yml"
-    - "setup-{{ ansible_os_family | lower }}.yml"
+    - "setup-{{ ansible_facts['distribution'] | lower }}-{{ ansible_facts['distribution_major_version'] }}.yml"
+    - "setup-{{ ansible_facts['distribution'] | lower }}-{{ ansible_facts['distribution_version'] }}.yml"
+    - "setup-{{ ansible_facts['distribution'] | lower }}-{{ ansible_facts['distribution_release'] }}.yml"
+    - "setup-{{ ansible_facts['distribution'] | lower }}.yml"
+    - "setup-{{ ansible_facts['os_family'] | lower }}.yml"
   tags:
     - install
 

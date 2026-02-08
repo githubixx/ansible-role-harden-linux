@@ -4,7 +4,7 @@
     pkg: "unattended-upgrades"
     state: present
 
-- name: "({{ ansible_distribution }}) Update APT package cache"
+- name: "({{ ansible_facts['distribution'] }}) Update APT package cache"
   ansible.builtin.apt:
     update_cache: "{{ harden_linux_ubuntu_update_cache }}"
     cache_valid_time: "{{ harden_linux_ubuntu_cache_valid_time }}"
@@ -13,7 +13,7 @@
   tags:
     - apt
 
-- name: "({{ ansible_distribution }}) APT autoremove"
+- name: "({{ ansible_facts['distribution'] }}) APT autoremove"
   ansible.builtin.apt:
     autoremove: true
   retries: 2
@@ -21,7 +21,7 @@
   tags:
     - apt
 
-- name: "({{ ansible_distribution }}) Upgrade APT to the latest packages"
+- name: "({{ ansible_facts['distribution'] }}) Upgrade APT to the latest packages"
   ansible.builtin.apt:
     upgrade: safe
     autoremove: true
@@ -30,7 +30,7 @@
   tags:
     - apt
 
-- name: "({{ ansible_distribution }}) Adjust APT update intervals"
+- name: "({{ ansible_facts['distribution'] }}) Adjust APT update intervals"
   ansible.builtin.copy:
     src: etc/apt/apt.conf.d/10periodic
     dest: /etc/apt/apt.conf.d/10periodic
