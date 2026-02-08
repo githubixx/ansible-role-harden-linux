@@ -1,5 +1,23 @@
 # Changelog
 
+## v9.0.0
+
+- **BREAKING**
+  - remove support for Ubuntu 20.04 (reached EOL)
+
+- **OTHER**
+  - replace injected `ansible_*` facts usage with `ansible_facts[...]` (prepares for ansible-core 2.24 where `INJECT_FACTS_AS_VARS` default changes)
+  - add `.yamllint`
+  - update `.gitignore`
+
+- **MOLECULE**
+  - use `githubixx` instead of `alvistack` Vagrant boxes
+  - fix deprecation message: `Jinja constant strings should not contain embedded templates`
+  - replace `mlocate` with `plocate`
+  - update groups
+  - update variables
+  - add `molecule/default/prepare.yml`
+
 ## v8.2.0
 
 - **FEATURE**
