@@ -53,7 +53,7 @@
     - name: Ensure ufw status output contains correct output
       ansible.builtin.assert:
         that:
-          - "'{{ harden_linux__ufw_status_output }}' in harden_linux__ufw_status.stdout"
+          - harden_linux__ufw_status_output in harden_linux__ufw_status.stdout
       loop:
         - "22/tcp                     ALLOW       Anywhere"
         - "80/tcp                     ALLOW       Anywhere"

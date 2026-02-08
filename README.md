@@ -24,6 +24,24 @@ See full  [CHANGELOG.md](https://github.com/githubixx/ansible-role-harden-linux/
 
 **Recent changes:**
 
+## v9.0.0
+
+- **BREAKING**
+  - remove support for Ubuntu 20.04 (reached EOL)
+
+- **OTHER**
+  - replace injected `ansible_*` facts usage with `ansible_facts[...]` (prepares for ansible-core 2.24 where `INJECT_FACTS_AS_VARS` default changes)
+  - add `.yamllint`
+  - update `.gitignore`
+
+- **MOLECULE**
+  - use `githubixx` instead of `alvistack` Vagrant boxes
+  - fix deprecation message: `Jinja constant strings should not contain embedded templates`
+  - replace `mlocate` with `plocate`
+  - update groups
+  - update variables
+  - add `molecule/default/prepare.yml`
+
 ## v8.2.0
 
 - **FEATURE**
@@ -361,7 +379,7 @@ If you installed the role via `ansible-galaxy install githubixx.harden_linux` th
 
 ## Testing
 
-This role has a small test setup that is created using [Molecule](https://github.com/ansible-community/molecule), libvirt (vagrant-libvirt) and QEMU/KVM. Please see my blog post [Testing Ansible roles with Molecule, libvirt (vagrant-libvirt) and QEMU/KVM](https://www.tauceti.blog/posts/testing-ansible-roles-with-molecule-libvirt-vagrant-qemu-kvm/) how to setup. The test configuration is [here](https://github.com/githubixx/ansible-role-runc/tree/master/molecule/default).
+This role has a small test setup that is created using [Molecule](https://github.com/ansible-community/molecule), libvirt (vagrant-libvirt) and QEMU/KVM. Please see my blog post [Testing Ansible roles with Molecule, libvirt (vagrant-libvirt) and QEMU/KVM](https://www.tauceti.blog/posts/testing-ansible-roles-with-molecule-libvirt-vagrant-qemu-kvm/) how to setup. The test configuration is [here](https://github.com/githubixx/ansible-role-harden-linux/tree/master/molecule/default).
 
 Afterwards molecule can be executed:
 

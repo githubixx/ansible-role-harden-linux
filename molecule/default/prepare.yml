@@ -1,0 +1,46 @@
+---
+# Copyright (C) 2026 Robert Wimmer
+# SPDX-License-Identifier: GPL-3.0-or-later
+
+- name: Run tasks for Archlinux
+  hosts: archlinux
+  remote_user: vagrant
+  become: true
+  gather_facts: false
+  tasks:
+    - name: Init pacman
+      ansible.builtin.raw: |
+        pacman-key --init
+        pacman-key --populate archlinux
+        pacman -S --noconfirm archlinux-keyring
+      changed_when: false
+      failed_when: false
+
+    - name: Updating packages
+      ansible.builtin.raw: |
+        pacman -R --noconfirm mlocate
+        pacman -S --noconfirm plocate
+        pacman -S --noconfirm --refresh --sysupgrade
+      changed_when: false
+      failed_when: false
+
+    - name: Install Python
+      ansible.builtin.raw: |
+        pacman -S --noconfirm python openssl
+      args:
+        executable: /bin/bash
+      changed_when: false
+
+    - name: Reboot for kernel updates
+      ansible.builtin.reboot:
+
+- name: Run tasks for Ubuntu
+  hosts: ubuntu
+  remote_user: vagrant
+  become: true
+  gather_facts: true
+  tasks:
+    - name: Update APT package cache
+      ansible.builtin.apt:
+        update_cache: true
+        cache_valid_time: 3600
