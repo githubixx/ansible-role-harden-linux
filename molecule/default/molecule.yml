@@ -9,67 +9,73 @@ driver:
     type: libvirt
 
 platforms:
-  - name: test-harden-linux-ubuntu2004-timesyncd
-    box: alvistack/ubuntu-22.04
+  - name: test-harden-linux-ubuntu2204-timesyncd
+    box: githubixx/ubuntu-22.04
     memory: 2048
     cpus: 2
     groups:
       - timesyncd
+      - ubuntu
     interfaces:
       - auto_config: true
         network_name: private_network
         type: static
         ip: 172.16.10.10
-  - name: test-harden-linux-ubuntu2004-ntp
-    box: alvistack/ubuntu-20.04
+  - name: test-harden-linux-ubuntu2204-ntp
+    box: githubixx/ubuntu-22.04
     memory: 2048
     cpus: 2
     groups:
       - ntp
+      - ubuntu
     interfaces:
       - auto_config: true
         network_name: private_network
         type: static
         ip: 172.16.10.20
   - name: test-harden-linux-ubuntu2204-openntpd
-    box: alvistack/ubuntu-22.04
+    box: githubixx/ubuntu-22.04
     memory: 2048
     cpus: 2
     groups:
       - openntpd
+      - ubuntu
     interfaces:
       - auto_config: true
         network_name: private_network
         type: static
         ip: 172.16.10.30
   - name: test-harden-linux-arch-timesyncd
-    box: archlinux/archlinux
+    box: githubixx/archlinux
     memory: 2048
     cpus: 2
     groups:
       - timesyncd
+      - archlinux
     interfaces:
       - auto_config: true
         network_name: private_network
         type: static
         ip: 172.16.10.40
-  - name: test-harden-linux-ubuntu2204-timesyncd
-    box: alvistack/ubuntu-22.04
+  - name: test-harden-linux-ubuntu2404-openntpd
+    box: githubixx/ubuntu-24.04
     memory: 2048
     cpus: 2
     groups:
-      - timesyncd
+      - openntpd
+      - ubuntu
     interfaces:
       - auto_config: true
         network_name: private_network
         type: static
         ip: 172.16.10.50
   - name: test-harden-linux-ubuntu2404-timesyncd
-    box: alvistack/ubuntu-24.04
+    box: githubixx/ubuntu-24.04
     memory: 2048
     cpus: 2
     groups:
       - timesyncd
+      - ubuntu
     interfaces:
       - auto_config: true
         network_name: private_network
@@ -116,7 +122,7 @@ provisioner:
           - "::1/128"
           - "10.0.0.0/8"
     host_vars:
-      test-harden-linux-ubuntu2004-timesyncd:
+      test-harden-linux-ubuntu2204-timesyncd:
         harden_linux_deploy_group: "deployer"
         harden_linux_deploy_user: "deployer"
         harden_linux_deploy_user_password: "{{ lookup('file', 'myuserpassword_hash') }}" # mypassword
@@ -128,8 +134,8 @@ provisioner:
         harden_linux_ntp_settings:
           "^#NTP=": "NTP=ntp.ubuntu.com"
         harden_linux_optional_packages:
-          - mlocate
-      test-harden-linux-ubuntu2004-ntp:
+          - plocate
+      test-harden-linux-ubuntu2204-ntp:
         harden_linux_deploy_group: "deployer"
         harden_linux_deploy_user: "deployer"
         harden_linux_deploy_user_home: "/home/deployer"
@@ -172,13 +178,16 @@ provisioner:
         harden_linux_ntp: "systemd-timesyncd"
         harden_linux_optional_packages:
           - mlocate
-      test-harden-linux-ubuntu2204-timesyncd:
+      test-harden-linux-ubuntu2404-openntpd:
         harden_linux_root_password: "{{ lookup('file', 'myuserpassword_hash') }}" # mypassword
-        harden_linux_ntp: "systemd-timesyncd"
+        harden_linux_ntp: "openntpd"
         harden_linux_ntp_settings:
-          "^#NTP=": "NTP=ntp.ubuntu.com"
+          "^servers 0": "servers 0.debian.pool.ntp.org"
+          "^servers 1": "servers 1.debian.pool.ntp.org"
+          "^servers 2": "servers 2.debian.pool.ntp.org"
+          "^servers 3": "servers 3.debian.pool.ntp.org"
         harden_linux_optional_packages:
-          - mlocate
+          - plocate
         harden_linux_systemd_resolved_settings:
           - DNS=
           - DNS=9.9.9.9 1.1.1.1 2606:4700:4700::1111 2620:fe::fe
@@ -192,7 +201,7 @@ provisioner:
         harden_linux_ntp_settings:
           "^#NTP=": "NTP=ntp.ubuntu.com"
         harden_linux_optional_packages:
-          - mlocate
+          - plocate
         harden_linux_systemd_resolved_settings:
           - DNS=
           - DNS=9.9.9.9 1.1.1.1 2606:4700:4700::1111 2620:fe::fe
