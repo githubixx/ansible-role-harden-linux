@@ -7,10 +7,20 @@
     name: "{{ item }}"
     state: "stopped"
     enabled: "no"
-  when: ansible_facts.services[item + '.service'] is defined
   loop:
-    - ntp
-    - openntpd
+    - ntp.service
+    - ntpd-rs.service
+    - openntpd.service
+  when:
+    - ansible_facts.services[item] is defined
+    - ansible_facts.services[item].status | default('') != 'not-found'
+
+- name: (systemd-timesyncd) Install package
+  ansible.builtin.package:
+    name: systemd-timesyncd
+    state: present
+  when:
+    - ansible_facts.services['systemd-timesyncd.service'] is not defined or ansible_facts.services['systemd-timesyncd.service'].status | default('') == 'not-found'
 
 - name: (systemd-timesyncd) Setup configuration
   when:
@@ -44,6 +54,6 @@
 
 - name: (systemd-timesyncd) Enable systemd service
   ansible.builtin.service:
-    name: "systemd-timesyncd"
+    name: "systemd-timesyncd.service"
     state: "started"
     enabled: "yes"

@@ -9,7 +9,7 @@ This Ansible role was mainly created for my blog series [Kubernetes the not so h
 - Adjust `sshd` settings e.g disable sshd password authentication, disable sshd root login and disable sshd PermitTunnel
 - Install `sshguard` and adjust whitelist
 - Change root password
-- Install/configure `Network Time Synchronization` (NTP) e.g. `openntpd`/`ntp`/`systemd-timesyncd`
+- Install/configure `Network Time Synchronization` (NTP) e.g. `openntpd`/`ntp`/`ntpd-rs`/`systemd-timesyncd`
 - Change `systemd-resolved` configuration
 
 ## Versions
@@ -23,6 +23,12 @@ I tag every release and try to stay with [semantic versioning](http://semver.org
 See full  [CHANGELOG.md](https://github.com/githubixx/ansible-role-harden-linux/blob/master/CHANGELOG.md)
 
 **Recent changes:**
+
+## v9.1.0
+
+- **FEATURE**
+  - add support for Ubuntu 26.04
+  - add `ntpd-rs` support for Ubuntu 26.04
 
 ## v9.0.0
 
@@ -267,21 +273,22 @@ harden_linux_sshguard_whitelist:
   - "::1/128"
 ```
 
-Also NTP packages can be installed/configured. This is optional. By default I'd recommend to use `systemd-timesyncd`. You can also use `ntp` package. But `openntpd` and `systemd-timesyncd` have the advantage that they don't listen on any ports by default. If you just want to keep the hosts clock in sync this is absolutely sufficient. Having the same time on all your hosts is critical for some services. E.g. for certificate validation, for etcd, databases, cryptography, and so on.
+Also NTP packages can be installed/configured. This is optional. By default I'd recommend to use `systemd-timesyncd`. You can also use `ntp`, `ntpd-rs`, or `openntpd`. But `openntpd` and `systemd-timesyncd` have the advantage that they don't listen on any ports by default. If you just want to keep the hosts clock in sync this is absolutely sufficient. Having the same time on all your hosts is critical for some services. E.g. for certificate validation, for etcd, databases, cryptography, and so on.
 
 Valid options for `harden_linux_ntp` are:
 
 - openntpd
 - ntp
+- ntpd-rs
 - systemd-timesyncd
 
-`openntpd` and `systemd-timesyncd` have the advantage that they don't listen on any ports by default as already mentioned. If you just want to keep the hosts clock in sync one of those two should do the job. `systemd-timesyncd` is already installed if a distribution uses `systemd` (which is basically true for most Linux OSes nowadays). So no additional packages are needed in this case. To enable `openntpd` set `harden_linux_ntp` accordingly e.g.:
+`openntpd` and `systemd-timesyncd` have the advantage that they don't listen on any ports by default as already mentioned. If you just want to keep the hosts clock in sync one of those two should do the job. Some distributions ship `systemd-timesyncd` as a separate package, and the role installs it when this backend is selected. Ubuntu 26.04 also provides `ntpd-rs` as a packaged NTP daemon. To enable `openntpd` set `harden_linux_ntp` accordingly e.g.:
 
 ```yaml
 harden_linux_ntp: "openntpd"
 ```
 
-Settings for `openntpd`, `ntpd` or `systemd-timesyncd` (see next paragraph). For further options see man page: `man 5 ntpd.conf` for `ntp` and `openntpd` and `man 5 timesyncd.conf` for `systemd-timesyncd`.
+Settings for `openntpd`, `ntp`, `ntpd-rs` or `systemd-timesyncd` (see next paragraph). For further options see man page: `man 5 ntpd.conf` for `ntp` and `openntpd` and `man 5 timesyncd.conf` for `systemd-timesyncd`. For Ubuntu 26.04 `ntpd-rs` the package configuration file is `/etc/ntpd-rs/ntp.toml`.
 
 The "key" here is a regular expression of a setting you want to replace and the value is the setting name + the setting value. E.g. we want to replace the line `servers 0.debian.pool.ntp.org` with `servers 1.debian.pool.ntp.org`. The regex (the key) would be `^servers 0` which means:
 

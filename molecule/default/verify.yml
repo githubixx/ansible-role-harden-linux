@@ -18,7 +18,7 @@
   tasks:
     - name: Get systemd-timesyncd status
       ansible.builtin.systemd:
-        service: systemd-timesyncd
+        service: systemd-timesyncd.service
         state: started
       register: timesyncd__status
 
@@ -40,6 +40,20 @@
       ansible.builtin.assert:
         that:
           - openntpd__status.state == "started"
+
+- name: Verify ntpd-rs
+  hosts: ntpd-rs
+  tasks:
+    - name: Get ntpd-rs status
+      ansible.builtin.systemd:
+        service: ntpd-rs
+        state: started
+      register: ntpd_rs__status
+
+    - name: Ensure ntpd-rs is started
+      ansible.builtin.assert:
+        that:
+          - ntpd_rs__status.state == "started"
 
 - name: Verify UFW
   hosts: all

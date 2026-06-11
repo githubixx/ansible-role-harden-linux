@@ -81,6 +81,42 @@ platforms:
         network_name: private_network
         type: static
         ip: 172.16.10.60
+  - name: test-harden-linux-ubuntu2604-openntpd
+    box: githubixx/ubuntu-26.04
+    memory: 2048
+    cpus: 2
+    groups:
+      - openntpd
+      - ubuntu
+    interfaces:
+      - auto_config: true
+        network_name: private_network
+        type: static
+        ip: 172.16.10.70
+  - name: test-harden-linux-ubuntu2604-timesyncd
+    box: githubixx/ubuntu-26.04
+    memory: 2048
+    cpus: 2
+    groups:
+      - timesyncd
+      - ubuntu
+    interfaces:
+      - auto_config: true
+        network_name: private_network
+        type: static
+        ip: 172.16.10.80
+  - name: test-harden-linux-ubuntu2604-ntpd-rs
+    box: githubixx/ubuntu-26.04
+    memory: 2048
+    cpus: 2
+    groups:
+      - ntpd-rs
+      - ubuntu
+    interfaces:
+      - auto_config: true
+        network_name: private_network
+        type: static
+        ip: 172.16.10.90
 
 provisioner:
   name: ansible
@@ -200,6 +236,49 @@ provisioner:
         harden_linux_ntp: "systemd-timesyncd"
         harden_linux_ntp_settings:
           "^#NTP=": "NTP=ntp.ubuntu.com"
+        harden_linux_optional_packages:
+          - plocate
+        harden_linux_systemd_resolved_settings:
+          - DNS=
+          - DNS=9.9.9.9 1.1.1.1 2606:4700:4700::1111 2620:fe::fe
+          - FallbackDNS=
+          - FallbackDNS=149.112.112.112 1.0.0.1 2620:fe::9 2606:4700:4700::1001
+          - DNSOverTLS=
+          - DNSOverTLS=opportunistic
+      test-harden-linux-ubuntu2604-openntpd:
+        harden_linux_root_password: "{{ lookup('file', 'myuserpassword_hash') }}" # mypassword
+        harden_linux_ntp: "openntpd"
+        harden_linux_ntp_settings:
+          "^servers 0": "servers 0.debian.pool.ntp.org"
+          "^servers 1": "servers 1.debian.pool.ntp.org"
+          "^servers 2": "servers 2.debian.pool.ntp.org"
+          "^servers 3": "servers 3.debian.pool.ntp.org"
+        harden_linux_optional_packages:
+          - plocate
+        harden_linux_systemd_resolved_settings:
+          - DNS=
+          - DNS=9.9.9.9 1.1.1.1 2606:4700:4700::1111 2620:fe::fe
+          - FallbackDNS=
+          - FallbackDNS=149.112.112.112 1.0.0.1 2620:fe::9 2606:4700:4700::1001
+          - DNSOverTLS=
+          - DNSOverTLS=opportunistic
+      test-harden-linux-ubuntu2604-timesyncd:
+        harden_linux_root_password: "{{ lookup('file', 'myuserpassword_hash') }}" # mypassword
+        harden_linux_ntp: "systemd-timesyncd"
+        harden_linux_ntp_settings:
+          "^#NTP=": "NTP=ntp.ubuntu.com"
+        harden_linux_optional_packages:
+          - plocate
+        harden_linux_systemd_resolved_settings:
+          - DNS=
+          - DNS=9.9.9.9 1.1.1.1 2606:4700:4700::1111 2620:fe::fe
+          - FallbackDNS=
+          - FallbackDNS=149.112.112.112 1.0.0.1 2620:fe::9 2606:4700:4700::1001
+          - DNSOverTLS=
+          - DNSOverTLS=opportunistic
+      test-harden-linux-ubuntu2604-ntpd-rs:
+        harden_linux_root_password: "{{ lookup('file', 'myuserpassword_hash') }}" # mypassword
+        harden_linux_ntp: "ntpd-rs"
         harden_linux_optional_packages:
           - plocate
         harden_linux_systemd_resolved_settings:

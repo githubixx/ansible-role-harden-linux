@@ -2,27 +2,27 @@
 - name: Populate service facts
   ansible.builtin.service_facts:
 
-- name: (openntpd) Disable other ntp services
+- name: (ntpd-rs) Disable other ntp services
   ansible.builtin.service:
     name: "{{ item }}"
     state: "stopped"
     enabled: "no"
   loop:
     - ntp.service
-    - ntpd-rs.service
+    - openntpd.service
     - systemd-timesyncd.service
   when:
     - ansible_facts.services[item] is defined
     - ansible_facts.services[item].status | default('') != 'not-found'
 
-- name: (openntpd) Install package
+- name: (ntpd-rs) Install package
   ansible.builtin.package:
-    name: openntpd
+    name: ntpd-rs
     state: present
 
-- name: (openntpd) Adjust ntpd.conf settings
+- name: (ntpd-rs) Adjust ntp.toml settings
   ansible.builtin.lineinfile:
-    dest: "{{ harden_linux_openntpd_directory }}/ntpd.conf"
+    dest: "{{ harden_linux_ntpd_rs_config_file }}"
     regexp: "{{ item }}"
     line: "{{ harden_linux_ntp_settings[item] }}"
     state: "present"
@@ -31,8 +31,8 @@
   when:
     - harden_linux_ntp_settings is defined
 
-- name: (openntp) Enable systemd service
+- name: (ntpd-rs) Enable systemd service
   ansible.builtin.service:
-    name: "openntpd"
+    name: "ntpd-rs"
     state: "started"
     enabled: "yes"
