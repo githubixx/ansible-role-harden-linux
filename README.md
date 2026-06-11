@@ -30,6 +30,9 @@ See full  [CHANGELOG.md](https://github.com/githubixx/ansible-role-harden-linux/
   - add support for Ubuntu 26.04
   - add `ntpd-rs` support for Ubuntu 26.04
 
+- **MOLECULE**
+  - more tests in `verify.yml`
+
 ## v9.0.0
 
 - **BREAKING**
@@ -90,7 +93,7 @@ See full  [CHANGELOG.md](https://github.com/githubixx/ansible-role-harden-linux/
 roles:
   - name: githubixx.harden_linux
     src: https://github.com/githubixx/ansible-role-harden-linux.git
-    version: v8.1.0
+    version: v9.1.0
 ```
 
 ## Role Variables
