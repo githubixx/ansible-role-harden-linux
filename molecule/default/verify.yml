@@ -18,7 +18,7 @@
   tasks:
     - name: Get systemd-timesyncd status
       ansible.builtin.systemd:
-        service: systemd-timesyncd
+        service: systemd-timesyncd.service
         state: started
       register: timesyncd__status
 
@@ -26,6 +26,62 @@
       ansible.builtin.assert:
         that:
           - timesyncd__status.state == "started"
+
+    - name: Get systemd-timesyncd enabled state
+      ansible.builtin.command:
+        cmd: systemctl is-enabled systemd-timesyncd.service
+      register: timesyncd__enabled
+      changed_when: false
+
+    - name: Ensure systemd-timesyncd is enabled
+      ansible.builtin.assert:
+        that:
+          - timesyncd__enabled.stdout == "enabled"
+
+    - name: Ensure systemd-timesyncd drop-in exists when configured
+      ansible.builtin.stat:
+        path: /etc/systemd/timesyncd.conf.d/99-harden-linux-timesyncd.conf
+      register: timesyncd__dropin
+      when:
+        - harden_linux_ntp_settings is defined
+
+    - name: Ensure systemd-timesyncd drop-in is present when configured
+      ansible.builtin.assert:
+        that:
+          - timesyncd__dropin.stat.exists
+      when:
+        - harden_linux_ntp_settings is defined
+
+    - name: Ensure systemd-timesyncd settings are effective
+      ansible.builtin.lineinfile:
+        path: /etc/systemd/timesyncd.conf.d/99-harden-linux-timesyncd.conf
+        regexp: "{{ harden_linux__ntp_setting }}"
+        line: "{{ harden_linux_ntp_settings[harden_linux__ntp_setting] }}"
+        state: present
+      check_mode: true
+      register: timesyncd__settings_status
+      loop: "{{ harden_linux_ntp_settings | default({}) | flatten }}"
+      loop_control:
+        loop_var: harden_linux__ntp_setting
+      when:
+        - harden_linux_ntp_settings is defined
+
+    - name: Ensure only systemd-timesyncd is active among NTP backends
+      ansible.builtin.shell: |
+        active_count=0
+        for unit in ntp.service openntpd.service ntpd-rs.service systemd-timesyncd.service; do
+          if systemctl is-active "$unit" >/dev/null 2>&1; then
+            active_count=$((active_count + 1))
+          fi
+        done
+        echo "$active_count"
+      register: timesyncd__active_backends
+      changed_when: false
+
+    - name: Ensure exactly one NTP backend is active for timesyncd hosts
+      ansible.builtin.assert:
+        that:
+          - timesyncd__active_backends.stdout == "1"
 
 - name: Verify openntpd
   hosts: openntpd
@@ -41,14 +97,331 @@
         that:
           - openntpd__status.state == "started"
 
+    - name: Get openntpd enabled state
+      ansible.builtin.command:
+        cmd: systemctl is-enabled openntpd
+      register: openntpd__enabled
+      changed_when: false
+
+    - name: Ensure openntpd is enabled
+      ansible.builtin.assert:
+        that:
+          - openntpd__enabled.stdout == "enabled"
+
+    - name: Ensure openntpd settings are effective
+      ansible.builtin.lineinfile:
+        path: "/etc/openntpd/ntpd.conf"
+        regexp: "{{ harden_linux__ntp_setting }}"
+        line: "{{ harden_linux_ntp_settings[harden_linux__ntp_setting] }}"
+        state: present
+      check_mode: true
+      register: openntpd__settings_status
+      loop: "{{ harden_linux_ntp_settings | default({}) | flatten }}"
+      loop_control:
+        loop_var: harden_linux__ntp_setting
+      when:
+        - harden_linux_ntp_settings is defined
+
+    - name: Ensure only openntpd is active among NTP backends
+      ansible.builtin.shell: |
+        active_count=0
+        for unit in ntp.service openntpd.service ntpd-rs.service systemd-timesyncd.service; do
+          if systemctl is-active "$unit" >/dev/null 2>&1; then
+            active_count=$((active_count + 1))
+          fi
+        done
+        echo "$active_count"
+      register: openntpd__active_backends
+      changed_when: false
+
+    - name: Ensure exactly one NTP backend is active for openntpd hosts
+      ansible.builtin.assert:
+        that:
+          - openntpd__active_backends.stdout == "1"
+
+- name: Verify ntp
+  hosts: ntp
+  tasks:
+    - name: Get ntp status
+      ansible.builtin.systemd:
+        service: ntp
+        state: started
+      register: ntp__status
+
+    - name: Ensure ntp is started
+      ansible.builtin.assert:
+        that:
+          - ntp__status.state == "started"
+
+    - name: Get ntp enabled state
+      ansible.builtin.command:
+        cmd: systemctl is-enabled ntp
+      register: ntp__enabled
+      changed_when: false
+
+    - name: Ensure ntp is enabled
+      ansible.builtin.assert:
+        that:
+          - ntp__enabled.stdout == "enabled"
+
+    - name: Ensure ntp settings are effective
+      ansible.builtin.lineinfile:
+        path: /etc/ntp.conf
+        regexp: "{{ harden_linux__ntp_setting }}"
+        line: "{{ harden_linux_ntp_settings[harden_linux__ntp_setting] }}"
+        state: present
+      check_mode: true
+      register: ntp__settings_status
+      loop: "{{ harden_linux_ntp_settings | default({}) | flatten }}"
+      loop_control:
+        loop_var: harden_linux__ntp_setting
+      when:
+        - harden_linux_ntp_settings is defined
+
+    - name: Ensure exactly one NTP backend is active for ntp hosts
+      ansible.builtin.shell: |
+        active_count=0
+        for unit in ntp.service openntpd.service ntpd-rs.service systemd-timesyncd.service; do
+          if systemctl is-active "$unit" >/dev/null 2>&1; then
+            active_count=$((active_count + 1))
+          fi
+        done
+        echo "$active_count"
+      register: ntp__active_backends
+      changed_when: false
+
+    - name: Ensure only one NTP backend is active for ntp hosts
+      ansible.builtin.assert:
+        that:
+          - ntp__active_backends.stdout == "1"
+
+- name: Verify ntpd-rs
+  hosts: ntpd-rs
+  tasks:
+    - name: Get ntpd-rs status
+      ansible.builtin.systemd:
+        service: ntpd-rs
+        state: started
+      register: ntpd_rs__status
+
+    - name: Ensure ntpd-rs is started
+      ansible.builtin.assert:
+        that:
+          - ntpd_rs__status.state == "started"
+
+    - name: Get ntpd-rs enabled state
+      ansible.builtin.command:
+        cmd: systemctl is-enabled ntpd-rs
+      register: ntpd_rs__enabled
+      changed_when: false
+
+    - name: Ensure ntpd-rs is enabled
+      ansible.builtin.assert:
+        that:
+          - ntpd_rs__enabled.stdout == "enabled"
+
+    - name: Ensure ntpd-rs config file exists
+      ansible.builtin.stat:
+        path: /etc/ntpd-rs/ntp.toml
+      register: ntpd_rs__config
+
+    - name: Ensure ntpd-rs config file is present
+      ansible.builtin.assert:
+        that:
+          - ntpd_rs__config.stat.exists
+
+    - name: Ensure ntpd-rs settings are effective when configured
+      ansible.builtin.lineinfile:
+        path: /etc/ntpd-rs/ntp.toml
+        regexp: "{{ harden_linux__ntp_setting }}"
+        line: "{{ harden_linux_ntp_settings[harden_linux__ntp_setting] }}"
+        state: present
+      check_mode: true
+      register: ntpd_rs__settings_status
+      loop: "{{ harden_linux_ntp_settings | default({}) | flatten }}"
+      loop_control:
+        loop_var: harden_linux__ntp_setting
+      when:
+        - harden_linux_ntp_settings is defined
+
+    - name: Ensure exactly one NTP backend is active for ntpd-rs hosts
+      ansible.builtin.shell: |
+        active_count=0
+        for unit in ntp.service openntpd.service ntpd-rs.service systemd-timesyncd.service; do
+          if systemctl is-active "$unit" >/dev/null 2>&1; then
+            active_count=$((active_count + 1))
+          fi
+        done
+        echo "$active_count"
+      register: ntpd_rs__active_backends
+      changed_when: false
+
+    - name: Ensure only one NTP backend is active for ntpd-rs hosts
+      ansible.builtin.assert:
+        that:
+          - ntpd_rs__active_backends.stdout == "1"
+
+- name: Verify systemd-resolved configuration
+  hosts: all
+  tasks:
+    - name: Check systemd-resolved drop-in exists when configured
+      ansible.builtin.stat:
+        path: /etc/systemd/resolved.conf.d/99-override.conf
+      register: harden_linux__resolved_dropin
+      when:
+        - harden_linux_systemd_resolved_settings is defined
+
+    - name: Ensure systemd-resolved drop-in is present when configured
+      ansible.builtin.assert:
+        that:
+          - harden_linux__resolved_dropin.stat.exists
+      when:
+        - harden_linux_systemd_resolved_settings is defined
+
+    - name: Read systemd-resolved drop-in when configured
+      ansible.builtin.slurp:
+        path: /etc/systemd/resolved.conf.d/99-override.conf
+      register: harden_linux__resolved_dropin_content
+      when:
+        - harden_linux_systemd_resolved_settings is defined
+
+    - name: Ensure configured systemd-resolved settings are effective
+      ansible.builtin.assert:
+        that:
+          - harden_linux__resolved_setting in (harden_linux__resolved_dropin_content.content | b64decode)
+      loop: "{{ harden_linux_systemd_resolved_settings | default([]) }}"
+      loop_control:
+        loop_var: harden_linux__resolved_setting
+      when:
+        - harden_linux_systemd_resolved_settings is defined
+
+- name: Verify package state
+  hosts: all
+  tasks:
+    - name: Gather package facts
+      ansible.builtin.package_facts:
+        manager: auto
+
+    - name: Ensure optional packages are installed when configured
+      ansible.builtin.assert:
+        that:
+          - harden_linux__optional_package in ansible_facts.packages
+      loop: "{{ harden_linux_optional_packages | default([]) }}"
+      loop_control:
+        loop_var: harden_linux__optional_package
+
+    - name: Ensure absent packages are removed when configured
+      ansible.builtin.assert:
+        that:
+          - harden_linux__absent_package not in ansible_facts.packages
+      loop: "{{ harden_linux_absent_packages | default([]) }}"
+      loop_control:
+        loop_var: harden_linux__absent_package
+
+    - name: Ensure unattended-upgrades is installed on Ubuntu hosts
+      ansible.builtin.assert:
+        that:
+          - unattended_upgrades_package in ansible_facts.packages
+      vars:
+        unattended_upgrades_package: unattended-upgrades
+      when:
+        - ansible_facts['distribution'] == 'Ubuntu'
+
+- name: Verify deploy user side effects
+  hosts: all
+  tasks:
+    - name: Read deploy user passwd entry when configured
+      ansible.builtin.command:
+        cmd: "getent passwd {{ harden_linux_deploy_user }}"
+      register: harden_linux__deploy_user_passwd
+      changed_when: false
+      when:
+        - harden_linux_deploy_user is defined
+
+    - name: Ensure deploy user exists when configured
+      ansible.builtin.assert:
+        that:
+          - harden_linux__deploy_user_passwd.stdout != ''
+      when:
+        - harden_linux_deploy_user is defined
+
+    - name: Ensure deploy user home exists when configured
+      ansible.builtin.stat:
+        path: "{{ harden_linux_deploy_user_home }}"
+      register: harden_linux__deploy_user_home_stat
+      when:
+        - harden_linux_deploy_user is defined
+        - harden_linux_deploy_user_home is defined
+
+    - name: Ensure deploy user home is present when configured
+      ansible.builtin.assert:
+        that:
+          - harden_linux__deploy_user_home_stat.stat.exists
+          - harden_linux__deploy_user_home_stat.stat.isdir
+      when:
+        - harden_linux_deploy_user is defined
+        - harden_linux_deploy_user_home is defined
+
+    - name: Ensure deploy user sudoers file exists when configured
+      ansible.builtin.stat:
+        path: "/etc/sudoers.d/{{ harden_linux_deploy_user }}"
+      register: harden_linux__deploy_user_sudoers_stat
+      when:
+        - harden_linux_deploy_user is defined
+
+    - name: Ensure deploy user sudoers file is effective
+      ansible.builtin.assert:
+        that:
+          - harden_linux__deploy_user_sudoers_stat.stat.exists
+          - harden_linux__deploy_user_sudoers_stat.stat.mode == '0400'
+      when:
+        - harden_linux_deploy_user is defined
+
+    - name: Ensure deploy user authorized_keys exists when public keys are configured
+      ansible.builtin.stat:
+        path: "{{ harden_linux_deploy_user_home }}/.ssh/authorized_keys"
+      register: harden_linux__deploy_user_authorized_keys_stat
+      when:
+        - harden_linux_deploy_user is defined
+        - harden_linux_deploy_user_home is defined
+        - harden_linux_deploy_user_public_keys is defined
+
+    - name: Ensure deploy user authorized_keys is present when public keys are configured
+      ansible.builtin.assert:
+        that:
+          - harden_linux__deploy_user_authorized_keys_stat.stat.exists
+      when:
+        - harden_linux_deploy_user is defined
+        - harden_linux_deploy_user_home is defined
+        - harden_linux_deploy_user_public_keys is defined
+
 - name: Verify UFW
   hosts: all
+  vars:
+    harden_linux__ufw_defaults_expected:
+      - regex: '^DEFAULT_INPUT_POLICY'
+        value: 'DEFAULT_INPUT_POLICY="DROP"'
+      - regex: '^DEFAULT_OUTPUT_POLICY'
+        value: 'DEFAULT_OUTPUT_POLICY="ACCEPT"'
+      - regex: '^DEFAULT_FORWARD_POLICY'
+        value: 'DEFAULT_FORWARD_POLICY="ACCEPT"'
+      - regex: '^IPV6'
+        value: 'IPV6=yes'
+    harden_linux__sshguard_whitelist_expected:
+      - '127.0.0.0/8'
+      - '::1/128'
+      - '10.0.0.0/8'
   tasks:
     - name: Execute ufw status to capture output
       ansible.builtin.command:
         cmd: /usr/sbin/ufw status
       register: harden_linux__ufw_status
       changed_when: false
+
+    - name: Ensure UFW is active
+      ansible.builtin.assert:
+        that:
+          - '"Status: active" in harden_linux__ufw_status.stdout'
 
     - name: Ensure ufw status output contains correct output
       ansible.builtin.assert:
@@ -67,6 +440,90 @@
       loop_control:
         loop_var: harden_linux__ufw_status_output
 
+    - name: Ensure expected UFW defaults are configured
+      ansible.builtin.lineinfile:
+        path: /etc/default/ufw
+        regexp: "{{ harden_linux__ufw_default.regex }}"
+        line: "{{ harden_linux__ufw_default.value }}"
+        state: present
+      check_mode: true
+      register: harden_linux__ufw_defaults_status
+      loop: "{{ harden_linux__ufw_defaults_expected }}"
+      loop_control:
+        loop_var: harden_linux__ufw_default
+
+    - name: Ensure expected UFW defaults are effective
+      ansible.builtin.assert:
+        that:
+          - harden_linux__ufw_default_status is not changed
+      loop: "{{ harden_linux__ufw_defaults_status.results }}"
+      loop_control:
+        loop_var: harden_linux__ufw_default_status
+
+    - name: Ensure expected sshguard whitelist entries are configured
+      ansible.builtin.lineinfile:
+        path: /etc/sshguard/whitelist
+        regexp: "^{{ harden_linux__sshguard_whitelist_entry }}"
+        line: "{{ harden_linux__sshguard_whitelist_entry }}"
+        state: present
+      check_mode: true
+      register: harden_linux__sshguard_whitelist_status
+      loop: "{{ harden_linux__sshguard_whitelist_expected }}"
+      loop_control:
+        loop_var: harden_linux__sshguard_whitelist_entry
+
+    - name: Ensure expected sshguard whitelist entries are effective
+      ansible.builtin.assert:
+        that:
+          - harden_linux__sshguard_whitelist_entry_status is not changed
+      loop: "{{ harden_linux__sshguard_whitelist_status.results }}"
+      loop_control:
+        loop_var: harden_linux__sshguard_whitelist_entry_status
+
+    - name: Read selected sysctl values
+      ansible.builtin.command:
+        cmd: "sysctl -n {{ harden_linux__sysctl_setting.name }}"
+      register: harden_linux__sysctl_values
+      changed_when: false
+      loop:
+        - name: net.ipv4.tcp_syncookies
+          value: '1'
+        - name: net.ipv4.ip_forward
+          value: '1'
+        - name: net.ipv6.conf.all.forwarding
+          value: '1'
+        - name: kernel.randomize_va_space
+          value: '2'
+        - name: fs.protected_hardlinks
+          value: '1'
+      loop_control:
+        loop_var: harden_linux__sysctl_setting
+
+    - name: Ensure selected sysctl values are effective
+      ansible.builtin.assert:
+        that:
+          - harden_linux__sysctl_value.stdout == harden_linux__sysctl_value.harden_linux__sysctl_setting.value
+      loop: "{{ harden_linux__sysctl_values.results }}"
+      loop_control:
+        loop_var: harden_linux__sysctl_value
+
+    - name: Ensure configured file deletions are effective
+      ansible.builtin.stat:
+        path: "{{ harden_linux__deleted_file }}"
+      register: harden_linux__deleted_file_stats
+      loop:
+        - /root/.pw
+      loop_control:
+        loop_var: harden_linux__deleted_file
+
+    - name: Ensure configured deleted files are absent
+      ansible.builtin.assert:
+        that:
+          - not harden_linux__deleted_file_stat.stat.exists
+      loop: "{{ harden_linux__deleted_file_stats.results }}"
+      loop_control:
+        loop_var: harden_linux__deleted_file_stat
+
 - name: Verify sshd_config settings
   hosts: all
   vars:
@@ -74,6 +531,15 @@
       password_authentication:
         regex: '^PasswordAuthentication'
         value: 'PasswordAuthentication yes'
+      permit_root_login:
+        regex: '^PermitRootLogin'
+        value: 'PermitRootLogin no'
+      permit_tunnel:
+        regex: '^PermitTunnel'
+        value: 'PermitTunnel no'
+      port:
+        regex: '^Port '
+        value: 'Port 22'
       x11forwarding:
         regex: '^X11Forwarding'
         value: 'X11Forwarding no'

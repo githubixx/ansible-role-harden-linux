@@ -58,12 +58,13 @@ harden_linux_files_to_delete:
 #
 # - openntpd
 # - ntp
+# - ntpd-rs
 # - systemd-timesyncd
 #
 # "openntpd" and "systemd-timesyncd" have the advantage that they don't listen
 # on any ports by default. If you just want to keep the hosts clock in sync one
-# of those two should do the job. "systemd-timesyncd" is already installed if
-# a distribution uses "systemd". So no additional packages are needed.
+# of those two should do the job. Some distributions ship "systemd-timesyncd"
+# separately. The role installs the package when this backend is selected.
 #
 # Having the same time on all your hosts is critical for some services. E.g. for
 # certificate validation, for etcd, databases, ... By default "harden_linux_ntp"
@@ -71,11 +72,13 @@ harden_linux_files_to_delete:
 #
 # harden_linux_ntp: "openntpd"
 # harden_linux_ntp: "ntp"
+# harden_linux_ntp: "ntpd-rs"
 # harden_linux_ntp: "systemd-timesyncd"
 
-# Settings for "openntpd", "ntpd" or "systemd-timesyncd" (see next paragraph).
-# For further options see man page: "man 5 ntpd.conf" for "ntp" and "openntpd"
-# and "man 5 timesyncd.conf" for "systemd-timesyncd".
+# Settings for "openntpd", "ntp", "ntpd-rs" or "systemd-timesyncd" (see next
+# paragraph). For further options see man page: "man 5 ntpd.conf" for "ntp" and
+# "openntpd" and "man 5 timesyncd.conf" for "systemd-timesyncd". For Ubuntu
+# 26.04's "ntpd-rs" package see "/etc/ntpd-rs/ntp.toml".
 #
 # The "key" here is a regular expression of a setting you want to replace and the
 # value is the setting name + the setting value. E.g. we want to replace the line

@@ -32,7 +32,7 @@
 
 - name: Restart systemd-timesyncd
   ansible.builtin.service:
-    name: systemd-timesyncd
+    name: systemd-timesyncd.service
     state: restarted
 
 - name: Restart sshguard

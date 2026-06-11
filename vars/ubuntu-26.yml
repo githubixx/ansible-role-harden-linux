@@ -1,0 +1,6 @@
+---
+harden_linux_sshguard_whitelist_directory: "/etc/sshguard"
+harden_linux_sshguard_whitelist_file: "{{ harden_linux_sshguard_whitelist_directory }}/whitelist"
+
+harden_linux_openntpd_directory: "/etc/openntpd"
+harden_linux_ntpd_rs_config_file: "/etc/ntpd-rs/ntp.toml"

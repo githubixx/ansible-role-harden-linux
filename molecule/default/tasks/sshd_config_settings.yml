@@ -2,8 +2,10 @@
 - name: Ensure sshd_config setting
   ansible.builtin.lineinfile:
     path: /etc/ssh/sshd_config
-    regexp: '{{ harden_linux__sshd_config_setting }}'
-    line: "PasswordAuthentication yes"
+    regexp: "{{ harden_linux__sshd_config_setting.value.regex }}"
+    line: "{{ harden_linux__sshd_config_setting.value.value }}"
+    state: present
+  check_mode: true
   register: harden_linux__sshd_config_setting_status
 
 - name: Ensure sshd_config setting and value is present

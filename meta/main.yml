@@ -12,6 +12,7 @@ galaxy_info:
       versions:
         - "jammy"
         - "noble"
+        - "resolute"
   galaxy_tags:
     - networking
     - security

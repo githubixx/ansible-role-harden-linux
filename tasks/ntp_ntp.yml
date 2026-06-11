@@ -7,10 +7,7 @@
     name: "{{ item }}"
     state: "stopped"
     enabled: "no"
-  when: ansible_facts.services[item + '.service'] is defined
-  loop:
-    - openntpd
-    - systemd-timesyncd
+  loop: "{{ ['openntpd.service', 'ntpd-rs.service', 'systemd-timesyncd.service'] | intersect(ansible_facts.services.keys() | list) }}"
 
 - name: (ntp) Install package
   ansible.builtin.package:

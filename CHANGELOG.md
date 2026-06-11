@@ -1,5 +1,14 @@
 # Changelog
 
+## v9.1.0
+
+- **FEATURE**
+  - add support for Ubuntu 26.04
+  - add `ntpd-rs` support for Ubuntu 26.04
+
+- **MOLECULE**
+  - more tests in `verify.yml`
+
 ## v9.0.0
 
 - **BREAKING**
