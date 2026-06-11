@@ -129,7 +129,7 @@ provisioner:
   inventory:
     group_vars:
       all:
-        harden_linux_sshd_settings:
+        harden_linux_sshd_settings_user:
           "^PasswordAuthentication": "PasswordAuthentication yes"
           "^X11Forwarding": "X11Forwarding no"
         harden_linux_sysctl_settings_user:
@@ -213,7 +213,7 @@ provisioner:
         harden_linux_root_password: "{{ lookup('file', 'myuserpassword_hash') }}" # mypassword
         harden_linux_ntp: "systemd-timesyncd"
         harden_linux_optional_packages:
-          - mlocate
+          - plocate
       test-harden-linux-ubuntu2404-openntpd:
         harden_linux_root_password: "{{ lookup('file', 'myuserpassword_hash') }}" # mypassword
         harden_linux_ntp: "openntpd"
